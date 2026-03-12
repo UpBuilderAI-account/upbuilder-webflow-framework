@@ -90,3 +90,12 @@
 .w-tab-link:not(:first-child) {
   opacity: 0.6;
 }
+
+/* ========== FORMS ========== */
+/* Hide success/error messages in static preview */
+.w-form-done,
+.w-form-fail,
+[data-wf-component="FormSuccessMessage"],
+[data-wf-component="FormErrorMessage"] {
+  display: none !important;
+}
