@@ -241,7 +241,8 @@ export function SwiperSlider({
                   el: scrollbarRef.current,
                 };
                 swiper.scrollbar.init();
-                swiper.scrollbar.update();
+                // Type assertion needed - update() exists at runtime but not in ScrollbarMethods type
+                (swiper.scrollbar as any).update();
               }
             }, 0);
           }
