@@ -32,6 +32,9 @@ let _formsCSS: string | null = null;
 let _mediaCSS: string | null = null;
 let _layoutCSS: string | null = null;
 let _staticOverridesCSS: string | null = null;
+let _legacyLayoutCSS: string | null = null;
+let _legacyFormsCSS: string | null = null;
+let _legacyRuntimeCSS: string | null = null;
 
 function getBaseCSS(): string {
   if (_baseCSS === null) _baseCSS = loadCSS('base.css');
@@ -73,6 +76,21 @@ function getStaticOverridesCSS(): string {
   return _staticOverridesCSS;
 }
 
+function getLegacyLayoutCSS(): string {
+  if (_legacyLayoutCSS === null) _legacyLayoutCSS = loadCSS('legacy-layout.css');
+  return _legacyLayoutCSS;
+}
+
+function getLegacyFormsCSS(): string {
+  if (_legacyFormsCSS === null) _legacyFormsCSS = loadCSS('legacy-forms.css');
+  return _legacyFormsCSS;
+}
+
+function getLegacyRuntimeCSS(): string {
+  if (_legacyRuntimeCSS === null) _legacyRuntimeCSS = loadCSS('legacy-runtime.css');
+  return _legacyRuntimeCSS;
+}
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -88,6 +106,7 @@ export interface UsedComponents {
 }
 
 export type PreviewMode = 'static' | 'live';
+export type WebflowDefaultsPreset = 'smart' | 'full';
 
 export interface GeneratedCSS {
   /** Combined CSS string */
@@ -223,7 +242,8 @@ export function allComponentsUsed(): UsedComponents {
  */
 export function generateWebflowDefaults(
   used: UsedComponents,
-  mode: PreviewMode
+  mode: PreviewMode,
+  preset: WebflowDefaultsPreset = 'smart'
 ): GeneratedCSS {
   const chunks: string[] = [];
 
@@ -252,6 +272,12 @@ export function generateWebflowDefaults(
 
   if (used.lightbox || used.video) {
     chunks.push(getMediaCSS());
+  }
+
+  if (preset === 'full') {
+    chunks.push(getLegacyLayoutCSS());
+    chunks.push(getLegacyFormsCSS());
+    chunks.push(getLegacyRuntimeCSS());
   }
 
   // Static overrides for editor preview
@@ -283,5 +309,8 @@ export const cssChunks = {
   get forms() { return getFormsCSS(); },
   get media() { return getMediaCSS(); },
   get layout() { return getLayoutCSS(); },
+  get legacyLayout() { return getLegacyLayoutCSS(); },
+  get legacyForms() { return getLegacyFormsCSS(); },
+  get legacyRuntime() { return getLegacyRuntimeCSS(); },
   get staticOverrides() { return getStaticOverridesCSS(); },
 };

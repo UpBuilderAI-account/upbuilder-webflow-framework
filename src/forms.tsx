@@ -178,7 +178,7 @@ export interface FormCheckboxInputProps {
 }
 
 export function FormCheckboxInput({ name, required, className, onChange, ...rest }: FormCheckboxInputProps) {
-  return <input {...rest} type="checkbox" name={name} required={required} className={className} onChange={onChange} />;
+  return <input {...rest} type="checkbox" name={name} required={required} className={`${className || ''} w-checkbox-input`} onChange={onChange} />;
 }
 
 export function FormRadioWrapper({ className, children, ...rest }: FormWrapperProps) {
@@ -195,7 +195,7 @@ export interface FormRadioInputProps {
 }
 
 export function FormRadioInput({ name, value, required, className, onChange, ...rest }: FormRadioInputProps) {
-  return <input {...rest} type="radio" name={name} value={value} required={required} className={className} onChange={onChange} />;
+  return <input {...rest} type="radio" name={name} value={value} required={required} className={`${className || ''} w-radio-input`} onChange={onChange} />;
 }
 
 export interface FormMessageProps {
@@ -215,23 +215,23 @@ export function FormErrorMessage({ text, className, children, ...rest }: FormMes
 
 // File upload components (simplified)
 export function FormFileUploadWrapper({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload`}>{children}</div>;
 }
 
 export function FormFileUploadDefault({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload-default`}>{children}</div>;
 }
 
 export function FormFileUploadUploading({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload-uploading`}>{children}</div>;
 }
 
 export function FormFileUploadSuccess({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload-success`}>{children}</div>;
 }
 
 export function FormFileUploadError({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload-error`}>{children}</div>;
 }
 
 export interface FormFileUploadInputProps {
@@ -243,15 +243,15 @@ export interface FormFileUploadInputProps {
 }
 
 export function FormFileUploadInput({ name, accept, className, onChange, ...rest }: FormFileUploadInputProps) {
-  return <input {...rest} type="file" name={name} accept={accept} className={className} onChange={onChange} />;
+  return <input {...rest} type="file" name={name} accept={accept} className={`${className || ''} w-file-upload-input`} onChange={onChange} />;
 }
 
 export function FormFileUploadLabel({ text, className, children, ...rest }: FormMessageProps) {
-  return <div {...rest} className={className}>{children || text}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload-label`}>{children || text}</div>;
 }
 
 export function FormFileUploadErrorMsg({ text, className, children, ...rest }: FormMessageProps) {
-  return <div {...rest} className={className}>{children || text}</div>;
+  return <div {...rest} className={`${className || ''} w-file-upload-error-msg`}>{children || text}</div>;
 }
 
 export interface FormReCaptchaProps {

@@ -24,6 +24,22 @@ export function BlockContainer({ className, children, ...props }: BlockProps) {
   return <div className={className} {...props}>{children}</div>;
 }
 
+export function Container({ className, children, ...props }: BlockProps) {
+  return <div className={`${className || ''} w-container`} {...props}>{children}</div>;
+}
+
+export function Clearfix({ className, children, ...props }: BlockProps) {
+  return <div className={`${className || ''} w-clearfix`} {...props}>{children}</div>;
+}
+
+export function InlineBlock({ className, children, ...props }: BlockProps) {
+  return <div className={`${className || ''} w-inline-block`} {...props}>{children}</div>;
+}
+
+export function BlockLink({ className, children, ...props }: BlockProps) {
+  return <a className={`${className || ''} w-inline-block`} {...props}>{children}</a>;
+}
+
 export interface ImageProps {
   src?: string;
   alt?: string;
@@ -112,6 +128,10 @@ export interface ListProps {
 export function List({ ordered, className, children, ...props }: ListProps) {
   const Tag = ordered ? 'ol' : 'ul';
   return <Tag className={className} {...props}>{children}</Tag>;
+}
+
+export function ListUnstyled({ className, children, ...props }: ListProps) {
+  return <ul className={`${className || ''} w-list-unstyled`} {...props}>{children}</ul>;
 }
 
 export interface ListItemProps {
