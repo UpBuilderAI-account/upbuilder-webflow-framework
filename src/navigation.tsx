@@ -2,6 +2,7 @@
  * Navigation components - local implementations
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { NavbarSettings } from './types';
 
 // ============================================================================
 // NAVBAR CONTEXT
@@ -25,14 +26,6 @@ function useNavbarContext() {
 // NAVBAR COMPONENTS
 // ============================================================================
 
-export interface NavbarSettings {
-  collapseAt?: 'medium' | 'small' | 'none';
-  animation?: 'default' | 'over-left' | 'over-right';
-  animationDuration?: number;
-  dropdownMode?: 'hover' | 'click';
-  dropdownDelay?: number;
-}
-
 export interface NavbarWrapperProps {
   className?: string;
   children?: React.ReactNode;
@@ -47,6 +40,8 @@ const DEFAULT_NAVBAR: Required<NavbarSettings> = {
   animationDuration: 400,
   dropdownMode: 'hover',
   dropdownDelay: 300,
+  docHeight: false,
+  noScroll: false,
 };
 
 export function NavbarWrapper({ className, children, collapse, settings, ...rest }: NavbarWrapperProps) {

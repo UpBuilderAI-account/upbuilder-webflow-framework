@@ -2,6 +2,7 @@
  * Base components - local implementations
  */
 import React from 'react';
+import type { VideoSettings } from './types';
 
 export interface BlockProps {
   className?: string;
@@ -188,14 +189,6 @@ export function CodeBlock({ code = '', language = '', className, ...props }: Cod
 }
 
 // Background video components
-export interface VideoSettings {
-  autoplay?: boolean;
-  loop?: boolean;
-  muted?: boolean;
-  controls?: boolean;
-  poster?: string;
-}
-
 export interface BackgroundVideoWrapperProps {
   className?: string;
   children?: React.ReactNode;
