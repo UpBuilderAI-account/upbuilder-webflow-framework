@@ -2,6 +2,7 @@
  * Form components - local implementations
  */
 import React from 'react';
+import { useNodeID } from './node-id';
 
 // Form configuration props
 export interface FormProps {
@@ -52,7 +53,8 @@ export interface FormWrapperProps {
 }
 
 export function FormWrapper({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-form`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-form`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface FormFormProps extends FormProps {
@@ -64,13 +66,14 @@ export interface FormFormProps extends FormProps {
 }
 
 export function FormForm({ name, action, method = 'post', className, children, onSubmit, ...rest }: FormFormProps) {
+  const nodeId = useNodeID();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit?.(e);
   };
 
   return (
-    <form {...rest} name={name} action={action} method={method} className={className} onSubmit={handleSubmit}>
+    <form {...rest} name={name} action={action} method={method} className={className} onSubmit={handleSubmit} data-up-node-id={nodeId}>
       {children}
     </form>
   );
@@ -84,11 +87,13 @@ export interface FormLabelProps extends FormLabelPropsBase {
 }
 
 export function FormBlockLabel({ text, htmlFor, className, children, ...rest }: FormLabelProps) {
-  return <label {...rest} htmlFor={htmlFor} className={className}>{children || text}</label>;
+  const nodeId = useNodeID();
+  return <label {...rest} htmlFor={htmlFor} className={className} data-up-node-id={nodeId}>{children || text}</label>;
 }
 
 export function FormInlineLabel({ text, htmlFor, className, children, ...rest }: FormLabelProps) {
-  return <label {...rest} htmlFor={htmlFor} className={className} style={{ display: 'inline' }}>{children || text}</label>;
+  const nodeId = useNodeID();
+  return <label {...rest} htmlFor={htmlFor} className={className} style={{ display: 'inline' }} data-up-node-id={nodeId}>{children || text}</label>;
 }
 
 export interface FormTextInputComponentProps extends FormInputProps {
@@ -99,6 +104,7 @@ export interface FormTextInputComponentProps extends FormInputProps {
 }
 
 export function FormTextInput({ name, type = 'text', placeholder, required, value, className, onChange, ...rest }: FormTextInputComponentProps) {
+  const nodeId = useNodeID();
   return (
     <input
       {...rest}
@@ -109,6 +115,7 @@ export function FormTextInput({ name, type = 'text', placeholder, required, valu
       defaultValue={value}
       className={`${className || ''} w-input`}
       onChange={onChange}
+      data-up-node-id={nodeId}
     />
   );
 }
@@ -121,6 +128,7 @@ export interface FormTextareaComponentProps extends FormTextareaPropsBase {
 }
 
 export function FormTextarea({ name, placeholder, required, value, className, onChange, ...rest }: FormTextareaComponentProps) {
+  const nodeId = useNodeID();
   return (
     <textarea
       {...rest}
@@ -130,6 +138,7 @@ export function FormTextarea({ name, placeholder, required, value, className, on
       defaultValue={value}
       className={`${className || ''} w-input`}
       onChange={onChange}
+      data-up-node-id={nodeId}
     />
   );
 }
@@ -142,8 +151,9 @@ export interface FormSelectComponentProps extends FormSelectPropsBase {
 }
 
 export function FormSelect({ name, required, className, children, onChange, ...rest }: FormSelectComponentProps) {
+  const nodeId = useNodeID();
   return (
-    <select {...rest} name={name} required={required} className={`${className || ''} w-select`} onChange={onChange}>
+    <select {...rest} name={name} required={required} className={`${className || ''} w-select`} onChange={onChange} data-up-node-id={nodeId}>
       {children}
     </select>
   );
@@ -158,15 +168,17 @@ export interface FormButtonProps {
 }
 
 export function FormButton({ text, type = 'submit', className, children, ...rest }: FormButtonProps) {
+  const nodeId = useNodeID();
   return (
-    <button {...rest} type={type} className={`${className || ''} w-button`}>
+    <button {...rest} type={type} className={`${className || ''} w-button`} data-up-node-id={nodeId}>
       {children || text}
     </button>
   );
 }
 
 export function FormCheckboxWrapper({ className, children, ...rest }: FormWrapperProps) {
-  return <label {...rest} className={`${className || ''} w-checkbox`}>{children}</label>;
+  const nodeId = useNodeID();
+  return <label {...rest} className={`${className || ''} w-checkbox`} data-up-node-id={nodeId}>{children}</label>;
 }
 
 export interface FormCheckboxInputProps {
@@ -178,11 +190,13 @@ export interface FormCheckboxInputProps {
 }
 
 export function FormCheckboxInput({ name, required, className, onChange, ...rest }: FormCheckboxInputProps) {
-  return <input {...rest} type="checkbox" name={name} required={required} className={`${className || ''} w-checkbox-input`} onChange={onChange} />;
+  const nodeId = useNodeID();
+  return <input {...rest} type="checkbox" name={name} required={required} className={`${className || ''} w-checkbox-input`} onChange={onChange} data-up-node-id={nodeId} />;
 }
 
 export function FormRadioWrapper({ className, children, ...rest }: FormWrapperProps) {
-  return <label {...rest} className={`${className || ''} w-radio`}>{children}</label>;
+  const nodeId = useNodeID();
+  return <label {...rest} className={`${className || ''} w-radio`} data-up-node-id={nodeId}>{children}</label>;
 }
 
 export interface FormRadioInputProps {
@@ -195,7 +209,8 @@ export interface FormRadioInputProps {
 }
 
 export function FormRadioInput({ name, value, required, className, onChange, ...rest }: FormRadioInputProps) {
-  return <input {...rest} type="radio" name={name} value={value} required={required} className={`${className || ''} w-radio-input`} onChange={onChange} />;
+  const nodeId = useNodeID();
+  return <input {...rest} type="radio" name={name} value={value} required={required} className={`${className || ''} w-radio-input`} onChange={onChange} data-up-node-id={nodeId} />;
 }
 
 export interface FormMessageProps {
@@ -206,32 +221,39 @@ export interface FormMessageProps {
 }
 
 export function FormSuccessMessage({ text, className, children, ...rest }: FormMessageProps) {
-  return <div {...rest} className={`${className || ''} w-form-done`}>{children || text || 'Thank you! Your submission has been received!'}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-form-done`} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
 }
 
 export function FormErrorMessage({ text, className, children, ...rest }: FormMessageProps) {
-  return <div {...rest} className={`${className || ''} w-form-fail`}>{children || text || 'Oops! Something went wrong.'}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-form-fail`} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
 }
 
 // File upload components (simplified)
 export function FormFileUploadWrapper({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function FormFileUploadDefault({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload-default`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload-default`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function FormFileUploadUploading({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload-uploading`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload-uploading`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function FormFileUploadSuccess({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload-success`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload-success`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function FormFileUploadError({ className, children, ...rest }: FormWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload-error`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload-error`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface FormFileUploadInputProps {
@@ -243,15 +265,18 @@ export interface FormFileUploadInputProps {
 }
 
 export function FormFileUploadInput({ name, accept, className, onChange, ...rest }: FormFileUploadInputProps) {
-  return <input {...rest} type="file" name={name} accept={accept} className={`${className || ''} w-file-upload-input`} onChange={onChange} />;
+  const nodeId = useNodeID();
+  return <input {...rest} type="file" name={name} accept={accept} className={`${className || ''} w-file-upload-input`} onChange={onChange} data-up-node-id={nodeId} />;
 }
 
 export function FormFileUploadLabel({ text, className, children, ...rest }: FormMessageProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload-label`}>{children || text}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload-label`} data-up-node-id={nodeId}>{children || text}</div>;
 }
 
 export function FormFileUploadErrorMsg({ text, className, children, ...rest }: FormMessageProps) {
-  return <div {...rest} className={`${className || ''} w-file-upload-error-msg`}>{children || text}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-file-upload-error-msg`} data-up-node-id={nodeId}>{children || text}</div>;
 }
 
 export interface FormReCaptchaProps {
@@ -261,5 +286,6 @@ export interface FormReCaptchaProps {
 }
 
 export function FormReCaptcha({ siteKey, className, ...rest }: FormReCaptchaProps) {
-  return <div {...rest} className={className} data-sitekey={siteKey} />;
+  const nodeId = useNodeID();
+  return <div {...rest} className={className} data-sitekey={siteKey} data-up-node-id={nodeId} />;
 }

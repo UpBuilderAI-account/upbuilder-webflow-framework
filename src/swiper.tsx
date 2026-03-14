@@ -4,6 +4,7 @@
  */
 import React, { useRef, useEffect, Children, isValidElement } from 'react';
 import { Swiper, SwiperSlide as SwiperSlideCore } from 'swiper/react';
+import { useNodeID } from './node-id';
 import { Navigation, Pagination, Scrollbar, Autoplay, EffectFade, EffectCube, EffectCoverflow, EffectFlip, EffectCards, EffectCreative, FreeMode } from 'swiper/modules';
 import type { SwiperOptions } from 'swiper/types';
 
@@ -90,6 +91,7 @@ export function SwiperSlider({
   breakpoints,
   ...props
 }: SwiperSliderProps) {
+  const nodeId = useNodeID();
   const prevRef = useRef<HTMLDivElement>(null);
   const nextRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -184,7 +186,7 @@ export function SwiperSlider({
   const hasCustomScrollbar = !!customScrollbar;
 
   return (
-    <div className={`${className || ''} swiper`} data-swiper-container="true" {...props}>
+    <div className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} {...props}>
       <Swiper
         modules={modules}
         slidesPerView={slidesPerView}
@@ -267,8 +269,9 @@ export function SwiperSlider({
  * SwiperSlide - Individual slide
  */
 export function SwiperSlide({ className, children, ...props }: SwiperSlideProps) {
+  const nodeId = useNodeID();
   return (
-    <div className={`${className || ''} swiper-slide`} data-swiper-slide="true" {...props}>
+    <div className={`${className || ''} swiper-slide`} data-swiper-slide="true" data-up-node-id={nodeId} {...props}>
       {children}
     </div>
   );
@@ -281,8 +284,9 @@ SwiperSlide.displayName = 'SwiperSlide';
  * The init script connects this element via data-swiper-nav attribute instead
  */
 export function SwiperNavPrev({ className, children, ...props }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
+  const nodeId = useNodeID();
   return (
-    <div className={className || ''} role="button" tabIndex={0} aria-label="Previous slide" data-swiper-nav="prev" {...props}>
+    <div className={className || ''} role="button" tabIndex={0} aria-label="Previous slide" data-swiper-nav="prev" data-up-node-id={nodeId} {...props}>
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="15 18 9 12 15 6" />
@@ -299,8 +303,9 @@ SwiperNavPrev.displayName = 'SwiperNavPrev';
  * The init script connects this element via data-swiper-nav attribute instead
  */
 export function SwiperNavNext({ className, children, ...props }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
+  const nodeId = useNodeID();
   return (
-    <div className={className || ''} role="button" tabIndex={0} aria-label="Next slide" data-swiper-nav="next" {...props}>
+    <div className={className || ''} role="button" tabIndex={0} aria-label="Next slide" data-swiper-nav="next" data-up-node-id={nodeId} {...props}>
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="9 18 15 12 9 6" />
@@ -317,7 +322,8 @@ SwiperNavNext.displayName = 'SwiperNavNext';
  * For custom pagination, use your own styling; for default dots, Swiper will populate this element
  */
 export function SwiperPagination({ className, ...props }: { className?: string; [key: string]: any }) {
-  return <div className={className || ''} data-swiper-pagination="true" {...props} />;
+  const nodeId = useNodeID();
+  return <div className={className || ''} data-swiper-pagination="true" data-up-node-id={nodeId} {...props} />;
 }
 SwiperPagination.displayName = 'SwiperPagination';
 
@@ -326,6 +332,7 @@ SwiperPagination.displayName = 'SwiperPagination';
  * NOTE: We don't add swiper-scrollbar class because it shows Swiper's default scrollbar
  */
 export function SwiperScrollbar({ className, ...props }: { className?: string; [key: string]: any }) {
-  return <div className={className || ''} data-swiper-scrollbar="true" {...props} />;
+  const nodeId = useNodeID();
+  return <div className={className || ''} data-swiper-scrollbar="true" data-up-node-id={nodeId} {...props} />;
 }
 SwiperScrollbar.displayName = 'SwiperScrollbar';

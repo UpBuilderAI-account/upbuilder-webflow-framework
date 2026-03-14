@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import type { VideoSettings } from './types';
+import { useNodeID } from './node-id';
 
 export interface BlockProps {
   className?: string;
@@ -13,32 +14,47 @@ export interface BlockProps {
 }
 
 export function Block({ className, tag = 'div', children, animate, ...props }: BlockProps) {
+  const nodeId = useNodeID();
   const Tag = tag as any;
-  return <Tag className={className} data-animate={animate} {...props}>{children}</Tag>;
+  return (
+    <Tag className={className} data-animate={animate} data-up-node-id={nodeId} {...props}>
+      {children}
+    </Tag>
+  );
 }
 
 export function Section({ className, children, animate, ...props }: BlockProps) {
-  return <section className={className} data-animate={animate} {...props}>{children}</section>;
+  const nodeId = useNodeID();
+  return (
+    <section className={className} data-animate={animate} data-up-node-id={nodeId} {...props}>
+      {children}
+    </section>
+  );
 }
 
 export function BlockContainer({ className, children, ...props }: BlockProps) {
-  return <div className={className} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function Container({ className, children, ...props }: BlockProps) {
-  return <div className={`${className || ''} w-container`} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={`${className || ''} w-container`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function Clearfix({ className, children, ...props }: BlockProps) {
-  return <div className={`${className || ''} w-clearfix`} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={`${className || ''} w-clearfix`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function InlineBlock({ className, children, ...props }: BlockProps) {
-  return <div className={`${className || ''} w-inline-block`} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function BlockLink({ className, children, ...props }: BlockProps) {
-  return <a className={`${className || ''} w-inline-block`} {...props}>{children}</a>;
+  const nodeId = useNodeID();
+  return <a className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...props}>{children}</a>;
 }
 
 export interface ImageProps {
@@ -49,7 +65,8 @@ export interface ImageProps {
 }
 
 export function Image({ src, alt = '', className, ...props }: ImageProps) {
-  return <img src={src} alt={alt} className={className} loading="lazy" {...props} />;
+  const nodeId = useNodeID();
+  return <img src={src} alt={alt} className={className} loading="lazy" data-up-node-id={nodeId} {...props} />;
 }
 
 export interface VideoProps {
@@ -60,6 +77,7 @@ export interface VideoProps {
 }
 
 export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: VideoProps) {
+  const nodeId = useNodeID();
   // Handle YouTube/Vimeo embeds
   let embedUrl = videoUrl || '';
   if (embedUrl.includes('youtube.com/watch')) {
@@ -71,7 +89,7 @@ export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: V
   }
 
   return (
-    <div className={`${className || ''} w-video`} {...props}>
+    <div className={`${className || ''} w-video`} data-up-node-id={nodeId} {...props}>
       <iframe
         src={embedUrl}
         title={videoTitle}
@@ -86,16 +104,11 @@ export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: V
 
 /**
  * HamburgerIcon - Webflow's official nav-menu icon for hamburger menus
- *
- * IMPORTANT: This is a Webflow-specific component that renders the w-icon-nav-menu class.
- * - ONLY valid inside NavbarButton (mobile menu toggle)
- * - Do NOT replace with custom SVGs or icon libraries - Webflow requires this exact structure
- * - The SVG below matches Webflow's default hamburger appearance
- * - NavbarButton has a fallback SVG if no HamburgerIcon child is provided
  */
 export function HamburgerIcon({ className, ...props }: { className?: string; [key: string]: any }) {
+  const nodeId = useNodeID();
   return (
-    <div className={`w-icon-nav-menu ${className || ''}`} {...props}>
+    <div className={`w-icon-nav-menu ${className || ''}`} data-up-node-id={nodeId} {...props}>
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="3" y1="6" x2="21" y2="6" />
         <line x1="3" y1="12" x2="21" y2="12" />
@@ -112,7 +125,8 @@ export interface HtmlEmbedProps {
 }
 
 export function HtmlEmbed({ html = '', className, ...props }: HtmlEmbedProps) {
-  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} {...props} />;
+  const nodeId = useNodeID();
+  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} data-up-node-id={nodeId} {...props} />;
 }
 
 export function LineBreak() {
@@ -127,12 +141,14 @@ export interface ListProps {
 }
 
 export function List({ ordered, className, children, ...props }: ListProps) {
+  const nodeId = useNodeID();
   const Tag = ordered ? 'ol' : 'ul';
-  return <Tag className={className} {...props}>{children}</Tag>;
+  return <Tag className={className} data-up-node-id={nodeId} {...props}>{children}</Tag>;
 }
 
 export function ListUnstyled({ className, children, ...props }: ListProps) {
-  return <ul className={`${className || ''} w-list-unstyled`} {...props}>{children}</ul>;
+  const nodeId = useNodeID();
+  return <ul className={`${className || ''} w-list-unstyled`} data-up-node-id={nodeId} {...props}>{children}</ul>;
 }
 
 export interface ListItemProps {
@@ -143,7 +159,8 @@ export interface ListItemProps {
 }
 
 export function ListItem({ text, className, children, ...props }: ListItemProps) {
-  return <li className={className} {...props}>{children || text}</li>;
+  const nodeId = useNodeID();
+  return <li className={className} data-up-node-id={nodeId} {...props}>{children || text}</li>;
 }
 
 // Layout components
@@ -154,23 +171,28 @@ export interface LayoutProps {
 }
 
 export function Row({ className, children, ...props }: LayoutProps) {
-  return <div className={`${className || ''} w-row`} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={`${className || ''} w-row`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function Column({ className, children, ...props }: LayoutProps) {
-  return <div className={`${className || ''} w-col`} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={`${className || ''} w-col`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function Grid({ className, children, ...props }: LayoutProps) {
-  return <div className={className} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function HFlex({ className, children, ...props }: LayoutProps) {
-  return <div className={className} style={{ display: 'flex', flexDirection: 'row' }} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} style={{ display: 'flex', flexDirection: 'row' }} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function VFlex({ className, children, ...props }: LayoutProps) {
-  return <div className={className} style={{ display: 'flex', flexDirection: 'column' }} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} style={{ display: 'flex', flexDirection: 'column' }} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export interface CodeBlockProps {
@@ -181,8 +203,9 @@ export interface CodeBlockProps {
 }
 
 export function CodeBlock({ code = '', language = '', className, ...props }: CodeBlockProps) {
+  const nodeId = useNodeID();
   return (
-    <pre className={className} {...props}>
+    <pre className={className} data-up-node-id={nodeId} {...props}>
       <code className={language ? `language-${language}` : ''}>{code}</code>
     </pre>
   );
@@ -206,10 +229,11 @@ const DEFAULT_VIDEO: Required<Omit<VideoSettings, 'poster'>> & { poster?: string
 };
 
 export function BackgroundVideoWrapper({ className, children, videoUrl, settings, ...props }: BackgroundVideoWrapperProps) {
+  const nodeId = useNodeID();
   const s = { ...DEFAULT_VIDEO, ...settings };
 
   return (
-    <div className={`${className || ''} w-background-video`} {...props}>
+    <div className={`${className || ''} w-background-video`} data-up-node-id={nodeId} {...props}>
       {videoUrl && (
         <video
           autoPlay={s.autoplay}
@@ -235,13 +259,16 @@ export interface BackgroundVideoButtonProps {
 }
 
 export function BackgroundVideoPlayPauseButton({ className, children, ...props }: BackgroundVideoButtonProps) {
-  return <div className={className} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function BackgroundVideoPlayPauseButtonPlaying({ className, children, ...props }: BackgroundVideoButtonProps) {
-  return <div className={className} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function BackgroundVideoPlayPauseButtonPaused({ className, children, ...props }: BackgroundVideoButtonProps) {
-  return <div className={className} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
 }

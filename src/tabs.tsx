@@ -2,6 +2,7 @@
  * Tabs components - local implementations
  */
 import React, { useState, createContext, useContext, useMemo, Children } from 'react';
+import { useNodeID } from './node-id';
 
 // Tabs configuration props
 export interface TabsProps {
@@ -55,6 +56,7 @@ export function TabsWrapper({
   children,
   ...rest
 }: TabsWrapperProps) {
+  const nodeId = useNodeID();
   const initialTab = defaultTab;
   // Collect tab names from children
   const tabNames = useMemo(() => {
@@ -85,7 +87,7 @@ export function TabsWrapper({
 
   return (
     <TabsContext.Provider value={{ activeTab, activeIndex, setActiveTab, tabNames }}>
-      <div {...rest} className={`${className || ''} w-tabs`}>{children}</div>
+      <div {...rest} className={`${className || ''} w-tabs`} data-up-node-id={nodeId}>{children}</div>
     </TabsContext.Provider>
   );
 }
@@ -97,11 +99,13 @@ export interface TabsMenuProps {
 }
 
 export function TabsMenu({ className, children, ...rest }: TabsMenuProps) {
-  return <div {...rest} className={`${className || ''} w-tab-menu`} role="tablist">{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-tab-menu`} role="tablist" data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function TabsContent({ className, children, ...rest }: TabsMenuProps) {
-  return <div {...rest} className={`${className || ''} w-tab-content`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-tab-content`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface TabsLinkProps {
@@ -114,6 +118,7 @@ export interface TabsLinkProps {
 }
 
 export function TabsLink({ text, tabName = '', isActive, className, children, ...rest }: TabsLinkProps) {
+  const nodeId = useNodeID();
   const { activeTab, setActiveTab, tabNames, activeIndex } = useTabsContext();
   const idx = tabNames.indexOf(tabName);
   const active = isActive ?? (idx >= 0 ? activeIndex === idx : activeTab === tabName);
@@ -125,6 +130,7 @@ export function TabsLink({ text, tabName = '', isActive, className, children, ..
       role="tab"
       aria-selected={active}
       onClick={() => setActiveTab(tabName)}
+      data-up-node-id={nodeId}
     >
       {children || text}
     </button>
@@ -140,6 +146,7 @@ export interface TabsPaneProps {
 }
 
 export function TabsPane({ tabName = '', isActive, className, children, ...rest }: TabsPaneProps) {
+  const nodeId = useNodeID();
   const { activeTab, tabNames, activeIndex } = useTabsContext();
   const idx = tabNames.indexOf(tabName);
   const active = isActive ?? (idx >= 0 ? activeIndex === idx : activeTab === tabName);
@@ -151,6 +158,7 @@ export function TabsPane({ tabName = '', isActive, className, children, ...rest 
       role="tabpanel"
       style={{ display: active ? 'block' : 'none' }}
       aria-hidden={!active}
+      data-up-node-id={nodeId}
     >
       {children}
     </div>

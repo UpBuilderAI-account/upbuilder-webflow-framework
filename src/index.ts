@@ -18,6 +18,9 @@ export * from './registry';
 // Re-exports all components from category files
 // ============================================================================
 
+// Node ID system for preview/editor sync
+export * from './node-id';
+
 // Base elements
 export * from './base';
 

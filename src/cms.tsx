@@ -2,6 +2,7 @@
  * CMS/Dynamic components - local implementations
  */
 import React from 'react';
+import { useNodeID } from './node-id';
 
 export interface DynamoWrapperProps {
   className?: string;
@@ -10,15 +11,18 @@ export interface DynamoWrapperProps {
 }
 
 export function DynamoWrapper({ className, children, ...rest }: DynamoWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={className} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function DynamoList({ className, children, ...rest }: DynamoWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-dyn-items`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-dyn-items`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function DynamoItem({ className, children, ...rest }: DynamoWrapperProps) {
-  return <div {...rest} className={`${className || ''} w-dyn-item`}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-dyn-item`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface DynamoEmptyProps {
@@ -29,7 +33,8 @@ export interface DynamoEmptyProps {
 }
 
 export function DynamoEmpty({ text, className, children, ...rest }: DynamoEmptyProps) {
-  return <div {...rest} className={`${className || ''} w-dyn-empty`}>{children || text || 'No items found.'}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={`${className || ''} w-dyn-empty`} data-up-node-id={nodeId}>{children || text || 'No items found.'}</div>;
 }
 
 export interface SearchFormProps {
@@ -39,7 +44,8 @@ export interface SearchFormProps {
 }
 
 export function SearchForm({ className, children, ...rest }: SearchFormProps) {
-  return <form {...rest} className={className} role="search">{children}</form>;
+  const nodeId = useNodeID();
+  return <form {...rest} className={className} role="search" data-up-node-id={nodeId}>{children}</form>;
 }
 
 export interface SearchInputProps {
@@ -50,7 +56,8 @@ export interface SearchInputProps {
 }
 
 export function SearchInput({ name = 'query', placeholder = 'Search...', className, ...rest }: SearchInputProps) {
-  return <input {...rest} type="search" name={name} placeholder={placeholder} className={className} />;
+  const nodeId = useNodeID();
+  return <input {...rest} type="search" name={name} placeholder={placeholder} className={className} data-up-node-id={nodeId} />;
 }
 
 export interface SearchButtonProps {
@@ -61,11 +68,13 @@ export interface SearchButtonProps {
 }
 
 export function SearchButton({ text = 'Search', className, children, ...rest }: SearchButtonProps) {
-  return <button {...rest} type="submit" className={className}>{children || text}</button>;
+  const nodeId = useNodeID();
+  return <button {...rest} type="submit" className={className} data-up-node-id={nodeId}>{children || text}</button>;
 }
 
 export function SearchResults({ className, children, ...rest }: DynamoWrapperProps) {
-  return <div {...rest} className={className}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={className} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface LightboxItem {
@@ -88,6 +97,7 @@ export interface LightboxWrapperProps {
 }
 
 export function LightboxWrapper({ className, children, group, items, searchExclude, ...rest }: LightboxWrapperProps) {
+  const nodeId = useNodeID();
   // In React preview, just render as clickable - lightbox behavior handled by Webflow
   return (
     <a
@@ -96,6 +106,7 @@ export function LightboxWrapper({ className, children, group, items, searchExclu
       className={`${className || ''} w-lightbox`}
       data-lightbox-group={group}
       onClick={(e) => e.preventDefault()}
+      data-up-node-id={nodeId}
     >
       {children}
     </a>
@@ -110,8 +121,9 @@ export interface LightboxLinkProps {
 }
 
 export function LightboxLink({ className, children, href = '#', ...rest }: LightboxLinkProps) {
+  const nodeId = useNodeID();
   return (
-    <a {...rest} href={href} className={`${className || ''} w-lightbox-link`}>
+    <a {...rest} href={href} className={`${className || ''} w-lightbox-link`} data-up-node-id={nodeId}>
       {children}
     </a>
   );
@@ -125,7 +137,8 @@ export interface MapWidgetProps {
 }
 
 export function MapWidget({ apiKey, address, className, ...rest }: MapWidgetProps) {
-  if (!apiKey || !address) return <div {...rest} className={className}>Map placeholder</div>;
+  const nodeId = useNodeID();
+  if (!apiKey || !address) return <div {...rest} className={className} data-up-node-id={nodeId}>Map placeholder</div>;
 
   const encodedAddress = encodeURIComponent(address);
   return (
@@ -136,6 +149,7 @@ export function MapWidget({ apiKey, address, className, ...rest }: MapWidgetProp
       style={{ border: 0, width: '100%', height: '100%' }}
       allowFullScreen
       loading="lazy"
+      data-up-node-id={nodeId}
     />
   );
 }

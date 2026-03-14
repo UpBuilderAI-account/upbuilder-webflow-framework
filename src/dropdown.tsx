@@ -2,6 +2,7 @@
  * Dropdown components - local implementations
  */
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { useNodeID } from './node-id';
 
 // Dropdown configuration props
 export interface DropdownProps {
@@ -53,6 +54,7 @@ export function DropdownWrapper({
   startOpen = false,
   ...rest
 }: DropdownWrapperProps) {
+  const nodeId = useNodeID();
   // Accordion always uses click mode
   const isHover = !accordion && hover;
 
@@ -95,6 +97,7 @@ export function DropdownWrapper({
         onMouseLeave={isHover ? close : undefined}
         data-hover={isHover ? 'true' : 'false'}
         data-open={isOpen}
+        data-up-node-id={nodeId}
       >
         {children}
       </div>
@@ -110,6 +113,7 @@ export interface DropdownToggleProps {
 }
 
 export function DropdownToggle({ text, className, children, ...rest }: DropdownToggleProps) {
+  const nodeId = useNodeID();
   const { toggle, isOpen, isAccordion } = useDropdownContext();
 
   return (
@@ -121,6 +125,7 @@ export function DropdownToggle({ text, className, children, ...rest }: DropdownT
       aria-expanded={isOpen}
       aria-haspopup="true"
       role="button"
+      data-up-node-id={nodeId}
     >
       {children || text}
     </div>
@@ -134,6 +139,7 @@ export interface DropdownListProps {
 }
 
 export function DropdownList({ className, children, ...rest }: DropdownListProps) {
+  const nodeId = useNodeID();
   const { isOpen } = useDropdownContext();
 
   return (
@@ -141,6 +147,7 @@ export function DropdownList({ className, children, ...rest }: DropdownListProps
       {...rest}
       className={`${className || ''} w-dropdown-list ${isOpen ? 'w--open' : ''}`}
       role="menu"
+      data-up-node-id={nodeId}
     >
       {children}
     </nav>
@@ -156,6 +163,7 @@ export interface DropdownLinkProps {
 }
 
 export function DropdownLink({ text, href = '#', className, children, ...rest }: DropdownLinkProps) {
+  const nodeId = useNodeID();
   const { close, isAccordion } = useDropdownContext();
 
   const handleClick = () => {
@@ -169,6 +177,7 @@ export function DropdownLink({ text, href = '#', className, children, ...rest }:
       href={href}
       onClick={handleClick}
       role="menuitem"
+      data-up-node-id={nodeId}
     >
       {children || text}
     </a>
@@ -187,13 +196,19 @@ export interface AccordionItemProps {
 }
 
 export function AccordionItem({ className, children, ...rest }: AccordionItemProps) {
+  // Note: useNodeID is called inside DropdownWrapper, so we don't add it here
+  // to avoid double node IDs on the same element
   return <DropdownWrapper {...rest} className={className} accordion>{children}</DropdownWrapper>;
 }
 
 export function AccordionTrigger({ className, children, ...rest }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
+  // Note: useNodeID is called inside DropdownToggle, so we don't add it here
+  // to avoid double node IDs on the same element
   return <DropdownToggle {...rest} className={className}>{children}</DropdownToggle>;
 }
 
 export function AccordionContent({ className, children, ...rest }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
+  // Note: useNodeID is called inside DropdownList, so we don't add it here
+  // to avoid double node IDs on the same element
   return <DropdownList {...rest} className={className}>{children}</DropdownList>;
 }

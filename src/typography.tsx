@@ -2,6 +2,7 @@
  * Typography components - local implementations
  */
 import React from 'react';
+import { useNodeID } from './node-id';
 
 /**
  * Render text with newlines as <br /> elements
@@ -29,8 +30,9 @@ export interface HeadingProps {
 }
 
 export function Heading({ as = 'h2', text, richText, className, children, ...props }: HeadingProps) {
+  const nodeId = useNodeID();
   const Tag = as;
-  return <Tag className={className} {...props}>{children || renderTextWithBreaks(text)}</Tag>;
+  return <Tag className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</Tag>;
 }
 
 export interface TextProps {
@@ -42,15 +44,18 @@ export interface TextProps {
 }
 
 export function Paragraph({ text, richText, className, children, ...props }: TextProps) {
-  return <p className={className} {...props}>{children || renderTextWithBreaks(text)}</p>;
+  const nodeId = useNodeID();
+  return <p className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</p>;
 }
 
 export function Span({ text, className, children, ...props }: TextProps) {
-  return <span className={className} {...props}>{children || renderTextWithBreaks(text)}</span>;
+  const nodeId = useNodeID();
+  return <span className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</span>;
 }
 
 export function Blockquote({ text, className, children, ...props }: TextProps) {
-  return <blockquote className={className} {...props}>{children || renderTextWithBreaks(text)}</blockquote>;
+  const nodeId = useNodeID();
+  return <blockquote className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</blockquote>;
 }
 
 export interface RichTextProps {
@@ -60,43 +65,53 @@ export interface RichTextProps {
 }
 
 export function RichText({ className, children, ...props }: RichTextProps) {
-  return <div className={`${className || ''} w-richtext`} {...props}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div className={`${className || ''} w-richtext`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function Figure({ className, children, ...props }: RichTextProps) {
-  return <figure className={className} {...props}>{children}</figure>;
+  const nodeId = useNodeID();
+  return <figure className={className} data-up-node-id={nodeId} {...props}>{children}</figure>;
 }
 
 export function Figcaption({ text, className, children, ...props }: TextProps) {
-  return <figcaption className={className} {...props}>{children || renderTextWithBreaks(text)}</figcaption>;
+  const nodeId = useNodeID();
+  return <figcaption className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</figcaption>;
 }
 
 export function Strong({ text, className, children, ...props }: TextProps) {
-  return <strong className={className} {...props}>{children || renderTextWithBreaks(text)}</strong>;
+  const nodeId = useNodeID();
+  return <strong className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</strong>;
 }
 
 export function Emphasized({ text, className, children, ...props }: TextProps) {
-  return <em className={className} {...props}>{children || renderTextWithBreaks(text)}</em>;
+  const nodeId = useNodeID();
+  return <em className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</em>;
 }
 
 export function Superscript({ text, className, children, ...props }: TextProps) {
-  return <sup className={className} {...props}>{children || renderTextWithBreaks(text)}</sup>;
+  const nodeId = useNodeID();
+  return <sup className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</sup>;
 }
 
 export function Subscript({ text, className, children, ...props }: TextProps) {
-  return <sub className={className} {...props}>{children || renderTextWithBreaks(text)}</sub>;
+  const nodeId = useNodeID();
+  return <sub className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</sub>;
 }
 
 export function InlineCode({ text, className, children, ...props }: TextProps) {
-  return <code className={className} {...props}>{children || renderTextWithBreaks(text)}</code>;
+  const nodeId = useNodeID();
+  return <code className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</code>;
 }
 
 export function Strikethrough({ text, className, children, ...props }: TextProps) {
-  return <s className={className} {...props}>{children || renderTextWithBreaks(text)}</s>;
+  const nodeId = useNodeID();
+  return <s className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</s>;
 }
 
 export function Underline({ text, className, children, ...props }: TextProps) {
-  return <u className={className} {...props}>{children || renderTextWithBreaks(text)}</u>;
+  const nodeId = useNodeID();
+  return <u className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</u>;
 }
 
 export interface LinkProps {
@@ -109,24 +124,27 @@ export interface LinkProps {
 }
 
 export function Link({ href = '#', text, target, className, children, ...props }: LinkProps) {
+  const nodeId = useNodeID();
   return (
-    <a href={href} target={target} className={className} {...props}>
+    <a href={href} target={target} className={className} data-up-node-id={nodeId} {...props}>
       {children || renderTextWithBreaks(text)}
     </a>
   );
 }
 
 export function LinkBlock({ href = '#', target, className, children, ...props }: LinkProps) {
+  const nodeId = useNodeID();
   return (
-    <a href={href} target={target} className={`${className || ''} w-inline-block`} {...props}>
+    <a href={href} target={target} className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...props}>
       {children}
     </a>
   );
 }
 
 export function TextLink({ href = '#', text, target, className, children, ...props }: LinkProps) {
+  const nodeId = useNodeID();
   return (
-    <a href={href} target={target} className={className} {...props}>
+    <a href={href} target={target} className={className} data-up-node-id={nodeId} {...props}>
       {children || renderTextWithBreaks(text)}
     </a>
   );
@@ -141,8 +159,9 @@ export interface ButtonProps {
 }
 
 export function Button({ text, type = 'button', className, children, ...props }: ButtonProps) {
+  const nodeId = useNodeID();
   return (
-    <button type={type} className={`${className || ''} w-button`} {...props}>
+    <button type={type} className={`${className || ''} w-button`} data-up-node-id={nodeId} {...props}>
       {children || renderTextWithBreaks(text)}
     </button>
   );

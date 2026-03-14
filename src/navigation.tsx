@@ -3,6 +3,7 @@
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { NavbarSettings } from './types';
+import { useNodeID } from './node-id';
 
 // ============================================================================
 // NAVBAR CONTEXT
@@ -45,6 +46,7 @@ const DEFAULT_NAVBAR: Required<NavbarSettings> = {
 };
 
 export function NavbarWrapper({ className, children, collapse, settings, ...rest }: NavbarWrapperProps) {
+  const nodeId = useNodeID();
   const s = { ...DEFAULT_NAVBAR, ...settings };
   // Use settings collapseAt if provided, otherwise use collapse prop, otherwise default
   const collapseBreakpoint = s.collapseAt === 'none' ? 'none' : (collapse || s.collapseAt);
@@ -80,6 +82,7 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
       <div
         {...rest}
         className={`${className || ''} w-nav`}
+        data-up-node-id={nodeId}
         data-collapse={collapseBreakpoint}
         data-animation={s.animation}
         data-duration={s.animationDuration}
@@ -103,7 +106,8 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
 
 /** @deprecated Use Block instead - NavbarContainer is not a valid Webflow component */
 export function NavbarContainer({ className, children, ...rest }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
-  return <div {...rest} className={className}>{children}</div>;
+  const nodeId = useNodeID();
+  return <div {...rest} className={className} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface NavbarBrandProps {
@@ -114,8 +118,9 @@ export interface NavbarBrandProps {
 }
 
 export function NavbarBrand({ href = '/', className, children, ...rest }: NavbarBrandProps) {
+  const nodeId = useNodeID();
   return (
-    <a {...rest} className={`${className || ''} w-nav-brand`} href={href} aria-label="home">
+    <a {...rest} className={`${className || ''} w-nav-brand`} href={href} aria-label="home" data-up-node-id={nodeId}>
       {children}
     </a>
   );
@@ -128,6 +133,7 @@ export interface NavbarMenuProps {
 }
 
 export function NavbarMenu({ className, children, ...rest }: NavbarMenuProps) {
+  const nodeId = useNodeID();
   const { isMenuOpen } = useNavbarContext();
 
   return (
@@ -135,6 +141,7 @@ export function NavbarMenu({ className, children, ...rest }: NavbarMenuProps) {
       {...rest}
       className={`${className || ''} w-nav-menu ${isMenuOpen ? 'w--open' : ''}`}
       role="navigation"
+      data-up-node-id={nodeId}
     >
       {children}
     </nav>
@@ -151,6 +158,7 @@ export interface NavbarLinkProps {
 }
 
 export function NavbarLink({ text, href = '#', isActive, className, children, ...rest }: NavbarLinkProps) {
+  const nodeId = useNodeID();
   const { isMenuOpen, closeMenu } = useNavbarContext();
 
   return (
@@ -160,6 +168,7 @@ export function NavbarLink({ text, href = '#', isActive, className, children, ..
       href={href}
       aria-current={isActive ? 'page' : undefined}
       onClick={() => closeMenu()}
+      data-up-node-id={nodeId}
     >
       {children || text}
     </a>
@@ -173,6 +182,7 @@ export interface NavbarButtonProps {
 }
 
 export function NavbarButton({ className, children, ...rest }: NavbarButtonProps) {
+  const nodeId = useNodeID();
   const { isMenuOpen, toggleMenu } = useNavbarContext();
 
   return (
@@ -186,6 +196,7 @@ export function NavbarButton({ className, children, ...rest }: NavbarButtonProps
       aria-label="menu"
       aria-haspopup="menu"
       style={{ cursor: 'pointer' }}
+      data-up-node-id={nodeId}
     >
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
