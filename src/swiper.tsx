@@ -2,7 +2,7 @@
  * Swiper Slider components - using Swiper library
  * Full-featured, modern slider with no restrictions
  */
-import React, { useRef, useEffect, Children, isValidElement } from 'react';
+import React, { useRef, Children, isValidElement } from 'react';
 import { Swiper, SwiperSlide as SwiperSlideCore } from 'swiper/react';
 import { useNodeID } from './node-id';
 import { Navigation, Pagination, Scrollbar, Autoplay, EffectFade, EffectCube, EffectCoverflow, EffectFlip, EffectCards, EffectCreative, FreeMode } from 'swiper/modules';
@@ -92,39 +92,32 @@ export function SwiperSlider({
   ...props
 }: SwiperSliderProps) {
   const nodeId = useNodeID();
-  const prevRef = useRef<HTMLDivElement>(null);
-  const nextRef = useRef<HTMLDivElement>(null);
-  const paginationRef = useRef<HTMLDivElement>(null);
-  const scrollbarRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Separate children into slides and control elements
+  // Separate children into slides and other elements
   const slides: React.ReactNode[] = [];
-  let customPrevNav: React.ReactNode = null;
-  let customNextNav: React.ReactNode = null;
-  let customPagination: React.ReactNode = null;
-  let customScrollbar: React.ReactNode = null;
   const otherChildren: React.ReactNode[] = [];
 
-  // Recursively find swiper control components in children
-  const findSwiperControls = (nodes: React.ReactNode): void => {
-    Children.forEach(nodes, (child) => {
-      if (!isValidElement(child)) return;
+  // Track if we have custom nav/pagination (for Swiper config)
+  let hasCustomNav = false;
+  let hasCustomPagination = false;
+  let hasCustomScrollbar = false;
 
-      const displayName = (child.type as any)?.displayName || (child.type as any)?.name;
-
-      if (displayName === 'SwiperNavPrev' || child.type === SwiperNavPrev) {
-        customPrevNav = child;
-      } else if (displayName === 'SwiperNavNext' || child.type === SwiperNavNext) {
-        customNextNav = child;
-      } else if (displayName === 'SwiperPagination' || child.type === SwiperPagination) {
-        customPagination = child;
-      } else if (displayName === 'SwiperScrollbar' || child.type === SwiperScrollbar) {
-        customScrollbar = child;
-      } else if ((child.props as any)?.children) {
-        // Recursively search in nested children (e.g., Block wrapping nav buttons)
-        findSwiperControls((child.props as any).children);
-      }
-    });
+  // Recursively check if a node tree contains swiper controls
+  const checkForControls = (node: React.ReactNode): void => {
+    if (!isValidElement(node)) return;
+    const displayName = (node.type as any)?.displayName || (node.type as any)?.name;
+    if (displayName === 'SwiperNavPrev' || displayName === 'SwiperNavNext' || node.type === SwiperNavPrev || node.type === SwiperNavNext) {
+      hasCustomNav = true;
+    }
+    if (displayName === 'SwiperPagination' || node.type === SwiperPagination) {
+      hasCustomPagination = true;
+    }
+    if (displayName === 'SwiperScrollbar' || node.type === SwiperScrollbar) {
+      hasCustomScrollbar = true;
+    }
+    // Check nested children
+    Children.forEach((node.props as any)?.children, checkForControls);
   };
 
   Children.forEach(children, (child) => {
@@ -137,17 +130,10 @@ export function SwiperSlider({
 
     if (displayName === 'SwiperSlide' || child.type === SwiperSlide) {
       slides.push(child);
-    } else if (displayName === 'SwiperNavPrev' || child.type === SwiperNavPrev) {
-      customPrevNav = child;
-    } else if (displayName === 'SwiperNavNext' || child.type === SwiperNavNext) {
-      customNextNav = child;
-    } else if (displayName === 'SwiperPagination' || child.type === SwiperPagination) {
-      customPagination = child;
-    } else if (displayName === 'SwiperScrollbar' || child.type === SwiperScrollbar) {
-      customScrollbar = child;
     } else {
-      // For other children (like Block wrappers), search recursively for controls
-      findSwiperControls((child.props as any)?.children);
+      // Check this child and its descendants for controls
+      checkForControls(child);
+      // Keep all non-slide children in otherChildren (including wrappers with nav elements)
       otherChildren.push(child);
     }
   });
@@ -166,27 +152,22 @@ export function SwiperSlider({
     ? { delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }
     : autoplay || false;
 
-  // Build pagination config
+  // Build pagination config - use data attribute selector if we have custom pagination
   const paginationConfig = pagination === true
-    ? { clickable: true, el: customPagination ? paginationRef.current : undefined }
+    ? { clickable: true }
     : pagination
-      ? { ...pagination, el: customPagination ? paginationRef.current : undefined }
+      ? { ...pagination }
       : false;
 
   // Build scrollbar config
   const scrollbarConfig = scrollbar === true
-    ? { draggable: true, el: customScrollbar ? scrollbarRef.current : undefined }
+    ? { draggable: true }
     : scrollbar
-      ? { ...scrollbar, el: customScrollbar ? scrollbarRef.current : undefined }
+      ? { ...scrollbar }
       : false;
 
-  // Determine if we have custom controls - if so, disable Swiper's default creation
-  const hasCustomNav = !!(customPrevNav || customNextNav);
-  const hasCustomPagination = !!customPagination;
-  const hasCustomScrollbar = !!customScrollbar;
-
   return (
-    <div className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} {...props}>
+    <div ref={containerRef} className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} {...props}>
       <Swiper
         modules={modules}
         slidesPerView={slidesPerView}
@@ -209,57 +190,66 @@ export function SwiperSlider({
         centeredSlides={centeredSlides}
         breakpoints={breakpoints}
         onSwiper={(swiper) => {
-          // Connect custom navigation elements after Swiper is initialized and refs are ready
-          // Use setTimeout to ensure refs are attached to DOM
-          if (hasCustomNav && navigation) {
-            setTimeout(() => {
-              if (prevRef.current || nextRef.current) {
-                swiper.params.navigation = {
-                  prevEl: prevRef.current,
-                  nextEl: nextRef.current,
-                };
+          // Connect custom control elements after Swiper is initialized
+          // Use setTimeout to ensure DOM elements are rendered
+          setTimeout(() => {
+            const container = containerRef.current;
+            if (!container) return;
+
+            // Connect custom navigation via data attributes
+            if (hasCustomNav && navigation) {
+              const prevEl = container.querySelector('[data-swiper-nav="prev"]') as HTMLElement;
+              const nextEl = container.querySelector('[data-swiper-nav="next"]') as HTMLElement;
+              if (prevEl || nextEl) {
+                swiper.params.navigation = { prevEl, nextEl };
                 swiper.navigation.init();
                 swiper.navigation.update();
               }
-            }, 0);
-          }
-          if (hasCustomPagination && pagination) {
-            setTimeout(() => {
-              if (paginationRef.current) {
+            }
+
+            // Connect custom pagination via data attribute
+            if (hasCustomPagination && pagination) {
+              const paginationEl = container.querySelector('[data-swiper-pagination="true"]') as HTMLElement;
+              if (paginationEl) {
                 swiper.params.pagination = {
                   ...(typeof paginationConfig === 'object' ? paginationConfig : { clickable: true }),
-                  el: paginationRef.current,
+                  el: paginationEl,
                 };
                 swiper.pagination.init();
                 swiper.pagination.update();
               }
-            }, 0);
-          }
-          if (hasCustomScrollbar && scrollbar) {
-            setTimeout(() => {
-              if (scrollbarRef.current) {
+            }
+
+            // Connect custom scrollbar via data attribute
+            if (hasCustomScrollbar && scrollbar) {
+              const scrollbarEl = container.querySelector('[data-swiper-scrollbar="true"]') as HTMLElement;
+              if (scrollbarEl) {
                 swiper.params.scrollbar = {
                   ...(typeof scrollbarConfig === 'object' ? scrollbarConfig : { draggable: true }),
-                  el: scrollbarRef.current,
+                  el: scrollbarEl,
                 };
                 swiper.scrollbar.init();
-                // Type assertion needed - update() exists at runtime but not in ScrollbarMethods type
                 (swiper.scrollbar as any).update();
               }
-            }, 0);
-          }
+            }
+          }, 0);
         }}
       >
-        {slides.map((slide, idx) => (
-          <SwiperSlideCore key={idx}>{slide}</SwiperSlideCore>
-        ))}
+        {slides.map((slide, idx) => {
+          // SwiperSlide component already renders content - just extract children
+          // to avoid double-nesting (SwiperSlideCore would add another swiper-slide div)
+          const slideElement = slide as React.ReactElement<SwiperSlideProps>;
+          return (
+            <SwiperSlideCore key={idx} className={slideElement.props.className}>
+              {slideElement.props.children}
+            </SwiperSlideCore>
+          );
+        })}
       </Swiper>
 
-      {/* Custom navigation - rendered outside Swiper for flexible placement */}
-      {customPrevNav && <div ref={prevRef}>{customPrevNav}</div>}
-      {customNextNav && <div ref={nextRef}>{customNextNav}</div>}
-      {customPagination && <div ref={paginationRef}>{customPagination}</div>}
-      {customScrollbar && <div ref={scrollbarRef}>{customScrollbar}</div>}
+      {/* Custom controls rendered outside Swiper for flexible placement */}
+      {/* Note: Controls stay in otherChildren if wrapped in a Block - they're only
+          extracted here if they're direct children of SwiperSlider */}
       {otherChildren}
     </div>
   );

@@ -8,6 +8,7 @@
  * - Runtime (renders React, generates same sequence)
  *
  * The key: both traverse depth-first, both use sequential counters.
+ * Counter auto-resets when window.__UP_RESET_NODE_COUNTER is true (set by bundler).
  */
 import { useRef } from 'react';
 
@@ -16,6 +17,7 @@ import { useRef } from 'react';
  * In preview mode, this counter increments for each component that renders
  */
 let globalNodeCounter = 0;
+let hasAutoReset = false;
 
 /**
  * Reset the counter - call this at the start of each preview render
@@ -28,6 +30,12 @@ export function resetNodeIDCounter(): void {
  * Get the next node ID - matches parser's node_X format
  */
 export function getNextNodeID(): string {
+  // Auto-reset on first call if flag is set (injected by bundler)
+  if (!hasAutoReset && typeof window !== 'undefined' && (window as any).__UP_RESET_NODE_COUNTER) {
+    console.log('[NODE-ID] Auto-resetting counter (was', globalNodeCounter, ')');
+    globalNodeCounter = 0;
+    hasAutoReset = true;
+  }
   return `node_${globalNodeCounter++}`;
 }
 
