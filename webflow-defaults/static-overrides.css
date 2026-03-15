@@ -60,6 +60,15 @@
   box-shadow: 0 8px 0 currentColor;
 }
 
+/* Hide pseudo-element hamburger when there's an actual SVG child (prevents double icon) */
+[data-wf-component="NavbarButton"] .w-icon-nav-menu:has(svg)::before,
+[data-wf-component="NavbarButton"] .w-icon-nav-menu:has(svg)::after,
+[data-wf-component="HamburgerIcon"]:has(svg)::before,
+[data-wf-component="HamburgerIcon"]:has(svg)::after {
+  display: none !important;
+  content: none !important;
+}
+
 /* ========== DROPDOWNS ========== */
 /* Show closed (hide dropdown list) */
 .w-dropdown-list {
