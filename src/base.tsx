@@ -104,17 +104,12 @@ export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: V
 
 /**
  * HamburgerIcon - Webflow's official nav-menu icon for hamburger menus
+ * Uses CSS :before pseudo-element with Webflow's icon font
  */
 export function HamburgerIcon({ className, ...props }: { className?: string; [key: string]: any }) {
   const nodeId = useNodeID();
   return (
-    <div className={`w-icon-nav-menu ${className || ''}`} data-up-node-id={nodeId} {...props}>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <line x1="3" y1="12" x2="21" y2="12" />
-        <line x1="3" y1="18" x2="21" y2="18" />
-      </svg>
-    </div>
+    <div className={`w-icon-nav-menu ${className || ''}`} data-up-node-id={nodeId} {...props} />
   );
 }
 
