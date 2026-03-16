@@ -3,6 +3,7 @@
  */
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { useNodeID } from './node-id';
+import { useStaticMode } from './static-mode';
 
 // Dropdown configuration props
 export interface DropdownProps {
@@ -55,19 +56,28 @@ export function DropdownWrapper({
   ...rest
 }: DropdownWrapperProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   // Accordion always uses click mode
   const isHover = !accordion && hover;
 
-  const [isOpen, setIsOpen] = useState(startOpen);
+  const [isOpen, setIsOpen] = useState(staticMode ? false : startOpen);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const toggle = () => setIsOpen(!isOpen);
+  // In static mode, always closed
+  const effectiveIsOpen = staticMode ? false : isOpen;
+
+  const toggle = () => {
+    if (staticMode) return; // No-op in static mode
+    setIsOpen(!isOpen);
+  };
   const open = () => {
+    if (staticMode) return; // No-op in static mode
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
     setIsOpen(true);
   };
   const close = () => {
+    if (staticMode) return; // No-op in static mode
     if (isHover && delay > 0) {
       closeTimeoutRef.current = setTimeout(() => setIsOpen(false), delay);
     } else {
@@ -77,7 +87,7 @@ export function DropdownWrapper({
 
   // Close on click outside (for all modes including hover)
   useEffect(() => {
-    if (!isOpen) return;
+    if (staticMode || !isOpen) return;
     const handleClick = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
         setIsOpen(false);
@@ -85,18 +95,18 @@ export function DropdownWrapper({
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [isOpen, isHover]);
+  }, [isOpen, isHover, staticMode]);
 
   return (
-    <DropdownContext.Provider value={{ isOpen, toggle, open, close, isAccordion: accordion }}>
+    <DropdownContext.Provider value={{ isOpen: effectiveIsOpen, toggle, open, close, isAccordion: accordion }}>
       <div
         {...rest}
         ref={wrapperRef}
-        className={`${className || ''} w-dropdown ${isOpen ? 'w--open' : ''}`}
-        onMouseEnter={isHover ? open : undefined}
-        onMouseLeave={isHover ? close : undefined}
+        className={`${className || ''} w-dropdown ${effectiveIsOpen ? 'w--open' : ''}`}
+        onMouseEnter={isHover && !staticMode ? open : undefined}
+        onMouseLeave={isHover && !staticMode ? close : undefined}
         data-hover={isHover ? 'true' : 'false'}
-        data-open={isOpen}
+        data-open={effectiveIsOpen}
         data-up-node-id={nodeId}
       >
         {children}
@@ -114,14 +124,15 @@ export interface DropdownToggleProps {
 
 export function DropdownToggle({ text, className, children, ...rest }: DropdownToggleProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   const { toggle, isOpen, isAccordion } = useDropdownContext();
 
   return (
     <div
       {...rest}
       className={`${className || ''} w-dropdown-toggle`}
-      onClick={toggle}
-      style={{ cursor: 'pointer' }}
+      onClick={staticMode ? undefined : toggle}
+      style={{ cursor: staticMode ? 'default' : 'pointer' }}
       aria-expanded={isOpen}
       aria-haspopup="true"
       role="button"
@@ -140,12 +151,17 @@ export interface DropdownListProps {
 
 export function DropdownList({ className, children, ...rest }: DropdownListProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   const { isOpen } = useDropdownContext();
+
+  // In static mode, force hidden with inline style to guarantee no visibility
+  const staticStyles = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
 
   return (
     <nav
       {...rest}
       className={`${className || ''} w-dropdown-list ${isOpen ? 'w--open' : ''}`}
+      style={staticStyles}
       role="menu"
       data-up-node-id={nodeId}
     >

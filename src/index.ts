@@ -21,6 +21,9 @@ export * from './registry';
 // Node ID system for preview/editor sync
 export * from './node-id';
 
+// Static mode system for disabling interactivity in canvas preview
+export * from './static-mode';
+
 // Base elements
 export * from './base';
 

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { useNodeID } from './node-id';
+import { useStaticMode } from './static-mode';
 
 // Form configuration props
 export interface FormProps {
@@ -67,8 +68,11 @@ export interface FormFormProps extends FormProps {
 
 export function FormForm({ name, action, method = 'post', className, children, onSubmit, ...rest }: FormFormProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (staticMode) return; // No-op in static mode
     onSubmit?.(e);
   };
 
@@ -222,11 +226,21 @@ export interface FormMessageProps {
 
 export function FormSuccessMessage({ text, className, children, ...rest }: FormMessageProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
+  // In static mode, hide success message (it only shows after form submission)
+  if (staticMode) {
+    return <div {...rest} className={`${className || ''} w-form-done`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
+  }
   return <div {...rest} className={`${className || ''} w-form-done`} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
 }
 
 export function FormErrorMessage({ text, className, children, ...rest }: FormMessageProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
+  // In static mode, hide error message (it only shows after form submission)
+  if (staticMode) {
+    return <div {...rest} className={`${className || ''} w-form-fail`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
+  }
   return <div {...rest} className={`${className || ''} w-form-fail`} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
 }
 
@@ -243,17 +257,26 @@ export function FormFileUploadDefault({ className, children, ...rest }: FormWrap
 
 export function FormFileUploadUploading({ className, children, ...rest }: FormWrapperProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload-uploading`} data-up-node-id={nodeId}>{children}</div>;
+  const staticMode = useStaticMode();
+  // In static mode, hide uploading state
+  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
+  return <div {...rest} className={`${className || ''} w-file-upload-uploading`} style={style} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function FormFileUploadSuccess({ className, children, ...rest }: FormWrapperProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload-success`} data-up-node-id={nodeId}>{children}</div>;
+  const staticMode = useStaticMode();
+  // In static mode, hide success state
+  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
+  return <div {...rest} className={`${className || ''} w-file-upload-success`} style={style} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function FormFileUploadError({ className, children, ...rest }: FormWrapperProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload-error`} data-up-node-id={nodeId}>{children}</div>;
+  const staticMode = useStaticMode();
+  // In static mode, hide error state
+  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
+  return <div {...rest} className={`${className || ''} w-file-upload-error`} style={style} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface FormFileUploadInputProps {
@@ -276,7 +299,10 @@ export function FormFileUploadLabel({ text, className, children, ...rest }: Form
 
 export function FormFileUploadErrorMsg({ text, className, children, ...rest }: FormMessageProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload-error-msg`} data-up-node-id={nodeId}>{children || text}</div>;
+  const staticMode = useStaticMode();
+  // In static mode, hide error message
+  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
+  return <div {...rest} className={`${className || ''} w-file-upload-error-msg`} style={style} data-up-node-id={nodeId}>{children || text}</div>;
 }
 
 export interface FormReCaptchaProps {

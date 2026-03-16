@@ -4,6 +4,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { NavbarSettings } from './types';
 import { useNodeID } from './node-id';
+import { useStaticMode } from './static-mode';
 
 // ============================================================================
 // NAVBAR CONTEXT
@@ -13,6 +14,7 @@ interface NavbarContextValue {
   isMenuOpen: boolean;
   toggleMenu: () => void;
   closeMenu: () => void;
+  staticMode: boolean;
 }
 
 const NavbarContext = createContext<NavbarContextValue | null>(null);
@@ -47,14 +49,24 @@ const DEFAULT_NAVBAR: Required<NavbarSettings> = {
 
 export function NavbarWrapper({ className, children, collapse, settings, ...rest }: NavbarWrapperProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   const s = { ...DEFAULT_NAVBAR, ...settings };
   // Use settings collapseAt if provided, otherwise use collapse prop, otherwise default
   const collapseBreakpoint = s.collapseAt === 'none' ? 'none' : (collapse || s.collapseAt);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  const closeMenu = () => setIsMenuOpen(false);
+  // In static mode, menu is always closed
+  const effectiveMenuOpen = staticMode ? false : isMenuOpen;
+
+  const toggleMenu = () => {
+    if (staticMode) return; // No-op in static mode
+    setIsMenuOpen(!isMenuOpen);
+  };
+  const closeMenu = () => {
+    if (staticMode) return; // No-op in static mode
+    setIsMenuOpen(false);
+  };
 
   // Get breakpoint width
   const getBreakpointWidth = () => {
@@ -67,18 +79,18 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
 
   // Close menu on resize to desktop
   useEffect(() => {
-    if (collapseBreakpoint === 'none') return;
+    if (staticMode || collapseBreakpoint === 'none') return;
     const handleResize = () => {
       if (window.innerWidth > getBreakpointWidth() && isMenuOpen) {
-        closeMenu();
+        setIsMenuOpen(false);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isMenuOpen, collapseBreakpoint]);
+  }, [isMenuOpen, collapseBreakpoint, staticMode]);
 
   return (
-    <NavbarContext.Provider value={{ isMenuOpen, toggleMenu, closeMenu }}>
+    <NavbarContext.Provider value={{ isMenuOpen: effectiveMenuOpen, toggleMenu, closeMenu, staticMode }}>
       <div
         {...rest}
         className={`${className || ''} w-nav`}
@@ -89,8 +101,8 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
         role="banner"
       >
         {children}
-        {/* Mobile overlay */}
-        {isMenuOpen && (
+        {/* Mobile overlay - never shown in static mode */}
+        {effectiveMenuOpen && (
           <div
             className="w-nav-overlay w--open"
             style={{
@@ -134,7 +146,7 @@ export interface NavbarMenuProps {
 
 export function NavbarMenu({ className, children, ...rest }: NavbarMenuProps) {
   const nodeId = useNodeID();
-  const { isMenuOpen } = useNavbarContext();
+  const { isMenuOpen, staticMode } = useNavbarContext();
 
   return (
     <nav
@@ -183,19 +195,19 @@ export interface NavbarButtonProps {
 
 export function NavbarButton({ className, children, ...rest }: NavbarButtonProps) {
   const nodeId = useNodeID();
-  const { isMenuOpen, toggleMenu } = useNavbarContext();
+  const { isMenuOpen, toggleMenu, staticMode } = useNavbarContext();
 
   return (
     <div
       {...rest}
       className={`${className || ''} w-nav-button ${isMenuOpen ? 'w--open' : ''}`}
-      onClick={toggleMenu}
+      onClick={staticMode ? undefined : toggleMenu}
       role="button"
-      tabIndex={0}
+      tabIndex={staticMode ? -1 : 0}
       aria-expanded={isMenuOpen}
       aria-label="menu"
       aria-haspopup="menu"
-      style={{ cursor: 'pointer' }}
+      style={{ cursor: staticMode ? 'default' : 'pointer' }}
       data-up-node-id={nodeId}
     >
       {children || (

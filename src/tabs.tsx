@@ -3,6 +3,7 @@
  */
 import React, { useState, createContext, useContext, useMemo, Children } from 'react';
 import { useNodeID } from './node-id';
+import { useStaticMode } from './static-mode';
 
 // Tabs configuration props
 export interface TabsProps {
@@ -27,6 +28,7 @@ interface TabsContextValue {
   activeIndex: number;
   setActiveTab: (tab: string) => void;
   tabNames: string[];
+  staticMode: boolean;
 }
 
 const TabsContext = createContext<TabsContextValue | null>(null);
@@ -57,6 +59,7 @@ export function TabsWrapper({
   ...rest
 }: TabsWrapperProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   const initialTab = defaultTab;
   // Collect tab names from children
   const tabNames = useMemo(() => {
@@ -73,11 +76,13 @@ export function TabsWrapper({
     return names;
   }, [children]);
 
-  const initialIndex = initialTab ? Math.max(0, tabNames.indexOf(initialTab)) : 0;
+  // In static mode, always show first tab
+  const initialIndex = staticMode ? 0 : (initialTab ? Math.max(0, tabNames.indexOf(initialTab)) : 0);
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [activeTab, setActiveTabName] = useState(tabNames[initialIndex] || initialTab);
 
   const setActiveTab = (tabName: string) => {
+    if (staticMode) return; // No-op in static mode
     const idx = tabNames.indexOf(tabName);
     if (idx >= 0) {
       setActiveIndex(idx);
@@ -85,8 +90,12 @@ export function TabsWrapper({
     }
   };
 
+  // In static mode, force first tab active
+  const effectiveActiveIndex = staticMode ? 0 : activeIndex;
+  const effectiveActiveTab = staticMode ? (tabNames[0] || '') : activeTab;
+
   return (
-    <TabsContext.Provider value={{ activeTab, activeIndex, setActiveTab, tabNames }}>
+    <TabsContext.Provider value={{ activeTab: effectiveActiveTab, activeIndex: effectiveActiveIndex, setActiveTab, tabNames, staticMode }}>
       <div {...rest} className={`${className || ''} w-tabs`} data-up-node-id={nodeId}>{children}</div>
     </TabsContext.Provider>
   );
@@ -119,9 +128,10 @@ export interface TabsLinkProps {
 
 export function TabsLink({ text, tabName = '', isActive, className, children, ...rest }: TabsLinkProps) {
   const nodeId = useNodeID();
-  const { activeTab, setActiveTab, tabNames, activeIndex } = useTabsContext();
+  const { activeTab, setActiveTab, tabNames, activeIndex, staticMode } = useTabsContext();
   const idx = tabNames.indexOf(tabName);
-  const active = isActive ?? (idx >= 0 ? activeIndex === idx : activeTab === tabName);
+  // In static mode, only first tab is active
+  const active = staticMode ? idx === 0 : (isActive ?? (idx >= 0 ? activeIndex === idx : activeTab === tabName));
 
   return (
     <button
@@ -129,7 +139,8 @@ export function TabsLink({ text, tabName = '', isActive, className, children, ..
       className={`${className || ''} w-tab-link ${active ? 'w--current' : ''}`}
       role="tab"
       aria-selected={active}
-      onClick={() => setActiveTab(tabName)}
+      onClick={staticMode ? undefined : () => setActiveTab(tabName)}
+      style={staticMode ? { cursor: 'default' } : undefined}
       data-up-node-id={nodeId}
     >
       {children || text}
@@ -147,9 +158,10 @@ export interface TabsPaneProps {
 
 export function TabsPane({ tabName = '', isActive, className, children, ...rest }: TabsPaneProps) {
   const nodeId = useNodeID();
-  const { activeTab, tabNames, activeIndex } = useTabsContext();
+  const { activeTab, tabNames, activeIndex, staticMode } = useTabsContext();
   const idx = tabNames.indexOf(tabName);
-  const active = isActive ?? (idx >= 0 ? activeIndex === idx : activeTab === tabName);
+  // In static mode, only first pane (idx 0) is visible
+  const active = staticMode ? idx === 0 : (isActive ?? (idx >= 0 ? activeIndex === idx : activeTab === tabName));
 
   return (
     <div

@@ -5,6 +5,7 @@
 import React, { useRef, Children, isValidElement } from 'react';
 import { Swiper, SwiperSlide as SwiperSlideCore } from 'swiper/react';
 import { useNodeID } from './node-id';
+import { useStaticMode } from './static-mode';
 import { Navigation, Pagination, Scrollbar, Autoplay, EffectFade, EffectCube, EffectCoverflow, EffectFlip, EffectCards, EffectCreative, FreeMode } from 'swiper/modules';
 import type { SwiperOptions } from 'swiper/types';
 
@@ -92,7 +93,14 @@ export function SwiperSlider({
   ...props
 }: SwiperSliderProps) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // In static mode: disable autoplay, touch interactions, and show first slide
+  const effectiveAutoplay = staticMode ? false : autoplay;
+  const effectiveAllowTouchMove = staticMode ? false : allowTouchMove;
+  const effectiveGrabCursor = staticMode ? false : grabCursor;
+  const effectiveInitialSlide = staticMode ? 0 : initialSlide;
 
   // Separate children into slides and other elements
   const slides: React.ReactNode[] = [];
@@ -147,10 +155,10 @@ export function SwiperSlider({
   if (effect === 'cards') modules.push(EffectCards);
   if (effect === 'creative') modules.push(EffectCreative);
 
-  // Build autoplay config
-  const autoplayConfig = autoplay === true
+  // Build autoplay config (disabled in static mode)
+  const autoplayConfig = effectiveAutoplay === true
     ? { delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }
-    : autoplay || false;
+    : effectiveAutoplay || false;
 
   // Build pagination config - use data attribute selector if we have custom pagination
   const paginationConfig = pagination === true
@@ -175,17 +183,17 @@ export function SwiperSlider({
         direction={direction}
         loop={loop}
         speed={speed}
-        initialSlide={initialSlide}
+        initialSlide={effectiveInitialSlide}
         slidesPerGroup={slidesPerGroup}
         autoplay={autoplayConfig}
         effect={effect}
         // Disable default navigation if we have custom nav elements
         // We'll connect them manually in onSwiper after refs are ready
-        navigation={navigation && !hasCustomNav}
-        pagination={paginationConfig && !hasCustomPagination ? paginationConfig : false}
-        scrollbar={scrollbarConfig && !hasCustomScrollbar ? scrollbarConfig : false}
-        allowTouchMove={allowTouchMove}
-        grabCursor={grabCursor}
+        navigation={navigation && !hasCustomNav && !staticMode}
+        pagination={paginationConfig && !hasCustomPagination && !staticMode ? paginationConfig : false}
+        scrollbar={scrollbarConfig && !hasCustomScrollbar && !staticMode ? scrollbarConfig : false}
+        allowTouchMove={effectiveAllowTouchMove}
+        grabCursor={effectiveGrabCursor}
         freeMode={freeMode}
         centeredSlides={centeredSlides}
         breakpoints={breakpoints}
@@ -275,8 +283,18 @@ SwiperSlide.displayName = 'SwiperSlide';
  */
 export function SwiperNavPrev({ className, children, ...props }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   return (
-    <div className={className || ''} role="button" tabIndex={0} aria-label="Previous slide" data-swiper-nav="prev" data-up-node-id={nodeId} {...props}>
+    <div
+      className={className || ''}
+      role="button"
+      tabIndex={staticMode ? -1 : 0}
+      aria-label="Previous slide"
+      data-swiper-nav="prev"
+      data-up-node-id={nodeId}
+      style={staticMode ? { cursor: 'default', pointerEvents: 'none' } : undefined}
+      {...props}
+    >
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="15 18 9 12 15 6" />
@@ -294,8 +312,18 @@ SwiperNavPrev.displayName = 'SwiperNavPrev';
  */
 export function SwiperNavNext({ className, children, ...props }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
   const nodeId = useNodeID();
+  const staticMode = useStaticMode();
   return (
-    <div className={className || ''} role="button" tabIndex={0} aria-label="Next slide" data-swiper-nav="next" data-up-node-id={nodeId} {...props}>
+    <div
+      className={className || ''}
+      role="button"
+      tabIndex={staticMode ? -1 : 0}
+      aria-label="Next slide"
+      data-swiper-nav="next"
+      data-up-node-id={nodeId}
+      style={staticMode ? { cursor: 'default', pointerEvents: 'none' } : undefined}
+      {...props}
+    >
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="9 18 15 12 9 6" />
