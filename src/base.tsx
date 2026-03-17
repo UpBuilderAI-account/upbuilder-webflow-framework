@@ -182,12 +182,12 @@ export function Grid({ className, children, ...props }: LayoutProps) {
 
 export function HFlex({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={className} style={{ display: 'flex', flexDirection: 'row' }} data-up-node-id={nodeId} {...props}>{children}</div>;
+  return <div className={`w-layout-hflex ${className || ''}`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export function VFlex({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={className} style={{ display: 'flex', flexDirection: 'column' }} data-up-node-id={nodeId} {...props}>{children}</div>;
+  return <div className={`w-layout-vflex ${className || ''}`} data-up-node-id={nodeId} {...props}>{children}</div>;
 }
 
 export interface CodeBlockProps {
