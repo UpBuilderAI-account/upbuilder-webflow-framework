@@ -2,8 +2,9 @@
  * Swiper Slider components - using Swiper library
  * Full-featured, modern slider with no restrictions
  */
-import React, { useRef, Children, isValidElement } from 'react';
+import React, { useRef, useEffect, useCallback, Children, isValidElement } from 'react';
 import { Swiper, SwiperSlide as SwiperSlideCore } from 'swiper/react';
+import type { Swiper as SwiperType } from 'swiper';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
 import { Navigation, Pagination, Scrollbar, Autoplay, EffectFade, EffectCube, EffectCoverflow, EffectFlip, EffectCards, EffectCreative, FreeMode } from 'swiper/modules';
@@ -95,6 +96,25 @@ export function SwiperSlider({
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
   const containerRef = useRef<HTMLDivElement>(null);
+  const swiperRef = useRef<SwiperType | null>(null);
+
+  // Handle clicks on custom nav elements via event delegation
+  // This is more reliable than Swiper's navigation.init() for custom elements
+  const handleContainerClick = useCallback((e: React.MouseEvent) => {
+    if (staticMode || !swiperRef.current) return;
+
+    const target = e.target as HTMLElement;
+    // Check if click is on or inside a nav element
+    const navEl = target.closest('[data-swiper-nav]') as HTMLElement;
+    if (!navEl) return;
+
+    const navType = navEl.getAttribute('data-swiper-nav');
+    if (navType === 'prev') {
+      swiperRef.current.slidePrev();
+    } else if (navType === 'next') {
+      swiperRef.current.slideNext();
+    }
+  }, [staticMode]);
 
   // In static mode: disable autoplay, touch interactions, and show first slide
   const effectiveAutoplay = staticMode ? false : autoplay;
@@ -175,7 +195,7 @@ export function SwiperSlider({
       : false;
 
   return (
-    <div ref={containerRef} className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} {...props}>
+    <div ref={containerRef} className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} onClick={handleContainerClick} {...props}>
       <Swiper
         modules={modules}
         slidesPerView={slidesPerView}
@@ -187,33 +207,39 @@ export function SwiperSlider({
         slidesPerGroup={slidesPerGroup}
         autoplay={autoplayConfig}
         effect={effect}
-        // Disable default navigation if we have custom nav elements
-        // We'll connect them manually in onSwiper after refs are ready
-        navigation={navigation && !hasCustomNav && !staticMode}
-        pagination={paginationConfig && !hasCustomPagination && !staticMode ? paginationConfig : false}
-        scrollbar={scrollbarConfig && !hasCustomScrollbar && !staticMode ? scrollbarConfig : false}
+        // For custom nav: we handle clicks via event delegation (no Swiper navigation needed)
+        // For default nav: pass true (Swiper creates its own buttons)
+        navigation={
+          staticMode ? false :
+          hasCustomNav ? false :
+          navigation
+        }
+        // For custom pagination: pass empty object to initialize module
+        pagination={
+          staticMode ? false :
+          hasCustomPagination && pagination ? { el: null } :
+          paginationConfig
+        }
+        // For custom scrollbar: pass empty object to initialize module
+        scrollbar={
+          staticMode ? false :
+          hasCustomScrollbar && scrollbar ? { el: null } :
+          scrollbarConfig
+        }
         allowTouchMove={effectiveAllowTouchMove}
         grabCursor={effectiveGrabCursor}
         freeMode={freeMode}
         centeredSlides={centeredSlides}
         breakpoints={breakpoints}
         onSwiper={(swiper) => {
-          // Connect custom control elements after Swiper is initialized
-          // Use setTimeout to ensure DOM elements are rendered
+          // Store swiper instance for click handling
+          swiperRef.current = swiper;
+
+          // Connect custom pagination/scrollbar elements after Swiper is initialized
+          // Navigation is handled via event delegation (handleContainerClick)
           setTimeout(() => {
             const container = containerRef.current;
             if (!container) return;
-
-            // Connect custom navigation via data attributes
-            if (hasCustomNav && navigation) {
-              const prevEl = container.querySelector('[data-swiper-nav="prev"]') as HTMLElement;
-              const nextEl = container.querySelector('[data-swiper-nav="next"]') as HTMLElement;
-              if (prevEl || nextEl) {
-                swiper.params.navigation = { prevEl, nextEl };
-                swiper.navigation.init();
-                swiper.navigation.update();
-              }
-            }
 
             // Connect custom pagination via data attribute
             if (hasCustomPagination && pagination) {
