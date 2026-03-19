@@ -1,5 +1,5 @@
 // ============================================================================
-// @upbuilder/react-framework
+// @upbuilder/webflow-framework
 // Single source of truth for components, types, and registry
 // ============================================================================
 
