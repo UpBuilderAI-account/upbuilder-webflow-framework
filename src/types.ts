@@ -280,7 +280,8 @@ export type ComponentFeature =
   | 'swiper'
   | 'forms'
   | 'lightbox'
-  | 'video';
+  | 'video'
+  | 'cms';
 
 export interface UsedFeatures {
   navbar: boolean;
@@ -290,6 +291,7 @@ export interface UsedFeatures {
   forms: boolean;
   lightbox: boolean;
   video: boolean;
+  cms: boolean;
 }
 
 export function createUsedFeatures(features: Partial<UsedFeatures> = {}): UsedFeatures {
@@ -301,5 +303,6 @@ export function createUsedFeatures(features: Partial<UsedFeatures> = {}): UsedFe
     forms: features.forms ?? false,
     lightbox: features.lightbox ?? false,
     video: features.video ?? false,
+    cms: features.cms ?? false,
   };
 }

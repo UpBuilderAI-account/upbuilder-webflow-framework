@@ -10,7 +10,7 @@
  * The key: both traverse depth-first, both use sequential counters.
  * Counter auto-resets when window.__UP_RESET_NODE_COUNTER is true (set by bundler).
  */
-import { useRef } from 'react';
+import React, { useRef, createContext, useContext } from 'react';
 
 /**
  * Global counter - reset when a new render cycle starts
@@ -18,6 +18,23 @@ import { useRef } from 'react';
  */
 let globalNodeCounter = 0;
 let hasAutoReset = false;
+
+/**
+ * Context to skip node ID generation for CMS-replicated items (index > 0)
+ * When true, useNodeID returns undefined and components skip adding data-up-node-id
+ */
+const SkipNodeIDContext = createContext<boolean>(false);
+
+/**
+ * Provider to skip node IDs for children (used by CMS replication)
+ */
+export function SkipNodeIDProvider({ skip, children }: { skip: boolean; children: React.ReactNode }) {
+  return (
+    <SkipNodeIDContext.Provider value={skip}>
+      {children}
+    </SkipNodeIDContext.Provider>
+  );
+}
 
 /**
  * Reset the counter - call this at the start of each preview render
@@ -42,9 +59,17 @@ export function getNextNodeID(): string {
 /**
  * Hook to get a stable node ID for a component instance
  * The ID is generated once on first render and cached
+ * Returns undefined when inside CMS replication (index > 0) to avoid duplicate IDs
  */
-export function useNodeID(): string {
+export function useNodeID(): string | undefined {
+  const skipNodeId = useContext(SkipNodeIDContext);
   const nodeIdRef = useRef<string | null>(null);
+
+  // If we're in a CMS replication context (index > 0), don't generate/return an ID
+  if (skipNodeId) {
+    return undefined;
+  }
+
   if (nodeIdRef.current === null) {
     nodeIdRef.current = getNextNodeID();
   }

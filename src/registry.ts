@@ -464,23 +464,129 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   },
 
   // -------------------------------------------------------------------------
-  // CMS / DYNAMIC
+  // CMS / DYNAMIC - Collection Structure
   // -------------------------------------------------------------------------
   DynamoWrapper: {
     tag: 'div',
+    feature: 'cms',
   },
   DynamoList: {
     tag: 'div',
     webflowClasses: ['w-dyn-items'],
+    feature: 'cms',
   },
   DynamoItem: {
     tag: 'div',
     webflowClasses: ['w-dyn-item'],
+    feature: 'cms',
   },
   DynamoEmpty: {
     tag: 'div',
     webflowClasses: ['w-dyn-empty'],
+    feature: 'cms',
   },
+
+  // -------------------------------------------------------------------------
+  // CMS / DYNAMIC - Field Bindings
+  // xscpType maps to valid Webflow XSCP types (Block, Image, Link, etc.)
+  // The dyn.bind data carries the CMS field binding info
+  // -------------------------------------------------------------------------
+  DynText: {
+    tag: 'span',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynRichText: {
+    tag: 'div',
+    xscpType: 'RichText',
+    webflowClasses: ['w-richtext'],
+    feature: 'cms',
+  },
+  DynImage: {
+    tag: 'img',
+    xscpType: 'Image',
+    voidElement: true,
+    feature: 'cms',
+  },
+  DynVideo: {
+    tag: 'div',
+    xscpType: 'Video',
+    feature: 'cms',
+  },
+  DynLink: {
+    tag: 'a',
+    xscpType: 'Link',
+    feature: 'cms',
+  },
+  DynSlugLink: {
+    tag: 'a',
+    xscpType: 'Link',
+    feature: 'cms',
+  },
+  DynEmail: {
+    tag: 'a',
+    xscpType: 'Link',
+    feature: 'cms',
+  },
+  DynPhone: {
+    tag: 'a',
+    xscpType: 'Link',
+    feature: 'cms',
+  },
+  DynFile: {
+    tag: 'a',
+    xscpType: 'Link',
+    feature: 'cms',
+  },
+  DynDate: {
+    tag: 'time',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynNumber: {
+    tag: 'span',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynColor: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynOption: {
+    tag: 'span',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynSwitch: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynReference: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynMultiReference: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynMultiImage: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+  DynPagination: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'cms',
+  },
+
+  // -------------------------------------------------------------------------
+  // SEARCH
+  // -------------------------------------------------------------------------
   SearchForm: {
     tag: 'form',
   },
