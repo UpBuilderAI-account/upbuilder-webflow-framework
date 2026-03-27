@@ -51,7 +51,12 @@ export interface SwiperSliderProps {
   grabCursor?: boolean;
   freeMode?: boolean;
   centeredSlides?: boolean;
-  // Responsive
+  // Responsive - simple props (preferred over breakpoints object)
+  slidesPerViewTablet?: number;  // At 768-991px
+  slidesPerViewMobile?: number;  // At 0-767px
+  spaceBetweenTablet?: number;
+  spaceBetweenMobile?: number;
+  // Responsive - advanced (raw Swiper breakpoints)
   breakpoints?: Record<number, Partial<SwiperOptions>>;
   // Other props
   [key: string]: any;
@@ -90,9 +95,44 @@ export function SwiperSlider({
   grabCursor = false,
   freeMode = false,
   centeredSlides = false,
-  breakpoints,
+  // Responsive simple props
+  slidesPerViewTablet,
+  slidesPerViewMobile,
+  spaceBetweenTablet,
+  spaceBetweenMobile,
+  breakpoints: breakpointsProp,
   ...props
 }: SwiperSliderProps) {
+  // Build breakpoints from simple responsive props if not using raw breakpoints
+  const hasResponsiveProps = slidesPerViewTablet !== undefined || slidesPerViewMobile !== undefined ||
+                              spaceBetweenTablet !== undefined || spaceBetweenMobile !== undefined;
+
+  const breakpoints = breakpointsProp || (hasResponsiveProps ? (() => {
+    const bp: Record<number, Partial<SwiperOptions>> = {};
+
+    // Mobile first: 0px+ (mobile values)
+    if (slidesPerViewMobile !== undefined || spaceBetweenMobile !== undefined) {
+      bp[0] = {};
+      if (slidesPerViewMobile !== undefined) bp[0].slidesPerView = slidesPerViewMobile;
+      if (spaceBetweenMobile !== undefined) bp[0].spaceBetween = spaceBetweenMobile;
+    }
+
+    // Tablet: 768px+
+    if (slidesPerViewTablet !== undefined || spaceBetweenTablet !== undefined) {
+      bp[768] = {};
+      if (slidesPerViewTablet !== undefined) bp[768].slidesPerView = slidesPerViewTablet;
+      if (spaceBetweenTablet !== undefined) bp[768].spaceBetween = spaceBetweenTablet;
+    }
+
+    // Desktop: 992px+ (use main slidesPerView/spaceBetween)
+    bp[992] = {
+      slidesPerView,
+      spaceBetween,
+    };
+
+    return bp;
+  })() : undefined);
+
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
   const containerRef = useRef<HTMLDivElement>(null);
