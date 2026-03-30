@@ -202,6 +202,15 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   BackgroundVideoPlayPauseButton: {
     tag: 'button',
     feature: 'video',
+    requiredChildren: ['BackgroundVideoPlayPauseButtonPlaying', 'BackgroundVideoPlayPauseButtonPaused'],
+  },
+  BackgroundVideoPlayPauseButtonPlaying: {
+    tag: 'div',
+    feature: 'video',
+  },
+  BackgroundVideoPlayPauseButtonPaused: {
+    tag: 'div',
+    feature: 'video',
   },
   HtmlEmbed: {
     tag: 'div',
@@ -458,6 +467,26 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     webflowClasses: ['w-file-upload-error-msg'],
     feature: 'forms',
   },
+  FormFileUploadDefault: {
+    tag: 'div',
+    webflowClasses: ['w-file-upload-default'],
+    feature: 'forms',
+  },
+  FormFileUploadUploading: {
+    tag: 'div',
+    webflowClasses: ['w-file-upload-uploading'],
+    feature: 'forms',
+  },
+  FormFileUploadSuccess: {
+    tag: 'div',
+    webflowClasses: ['w-file-upload-success'],
+    feature: 'forms',
+  },
+  FormFileUploadError: {
+    tag: 'div',
+    webflowClasses: ['w-file-upload-error'],
+    feature: 'forms',
+  },
   FormReCaptcha: {
     tag: 'div',
     feature: 'forms',
@@ -622,6 +651,20 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     tag: 'div',
     webflowClasses: ['w-widget', 'w-widget-map'],
     voidElement: true,
+  },
+
+  // -------------------------------------------------------------------------
+  // SYMBOLS / COMPONENTS
+  // -------------------------------------------------------------------------
+  Symbol: {
+    tag: 'div',
+    xscpType: 'Block', // Renders as Block, but with symbol metadata
+    feature: 'symbol',
+  },
+  SymbolInstance: {
+    tag: 'div',
+    xscpType: 'Symbol', // Actual Webflow Symbol type
+    feature: 'symbol',
   },
 };
 

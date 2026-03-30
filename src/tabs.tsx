@@ -7,6 +7,9 @@ import { useStaticMode } from './static-mode';
 
 // Tabs configuration props
 export interface TabsProps {
+  defaultTab?: string;
+  fadeIn?: number;
+  fadeOut?: number;
   duration?: number;
   easing?: string;
 }
@@ -96,7 +99,7 @@ export function TabsWrapper({
 
   return (
     <TabsContext.Provider value={{ activeTab: effectiveActiveTab, activeIndex: effectiveActiveIndex, setActiveTab, tabNames, staticMode }}>
-      <div {...rest} className={`${className || ''} w-tabs`} data-up-node-id={nodeId}>{children}</div>
+      <div {...rest} className={`e-n-tabs w-tabs ${className || ''}`} aria-label="Tabs. Open items with Enter or Space, close with Escape and navigate using the Arrow keys." data-up-node-id={nodeId}>{children}</div>
     </TabsContext.Provider>
   );
 }
@@ -109,12 +112,12 @@ export interface TabsMenuProps {
 
 export function TabsMenu({ className, children, ...rest }: TabsMenuProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-tab-menu`} role="tablist" data-up-node-id={nodeId}>{children}</div>;
+  return <div {...rest} className={`e-n-tabs-heading w-tab-menu ${className || ''}`} role="tablist" data-up-node-id={nodeId}>{children}</div>;
 }
 
 export function TabsContent({ className, children, ...rest }: TabsMenuProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-tab-content`} data-up-node-id={nodeId}>{children}</div>;
+  return <div {...rest} className={`e-n-tabs-content w-tab-content ${className || ''}`} data-up-node-id={nodeId}>{children}</div>;
 }
 
 export interface TabsLinkProps {
@@ -136,7 +139,7 @@ export function TabsLink({ text, tabName = '', isActive, className, children, ..
   return (
     <button
       {...rest}
-      className={`${className || ''} w-tab-link ${active ? 'w--current' : ''}`}
+      className={`e-n-tab-title w-tab-link ${active ? 'w--current e-active' : ''} ${className || ''}`}
       role="tab"
       aria-selected={active}
       onClick={staticMode ? undefined : () => setActiveTab(tabName)}
@@ -166,7 +169,7 @@ export function TabsPane({ tabName = '', isActive, className, children, ...rest 
   return (
     <div
       {...rest}
-      className={`${className || ''} w-tab-pane ${active ? 'w--tab-active' : ''}`}
+      className={`e-n-tab-content w-tab-pane ${active ? 'w--tab-active e-active' : ''} ${className || ''}`}
       role="tabpanel"
       style={{ display: active ? 'block' : 'none' }}
       aria-hidden={!active}

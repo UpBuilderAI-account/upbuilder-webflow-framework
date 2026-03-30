@@ -50,3 +50,6 @@ export * from './cms';
 
 // CMS Data Context (for preview with sample data)
 export * from './cms-context';
+
+// Symbol/Component support for Webflow round-trip
+export * from './symbol';
