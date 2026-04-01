@@ -136,12 +136,6 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   InlineCode: {
     tag: 'code',
   },
-  Strikethrough: {
-    tag: 's',
-  },
-  Underline: {
-    tag: 'u',
-  },
   CodeBlock: {
     tag: 'pre',
     webflowClasses: ['w-code-block'],

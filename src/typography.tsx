@@ -104,16 +104,6 @@ export function InlineCode({ text, className, children, ...props }: TextProps) {
   return <code className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</code>;
 }
 
-export function Strikethrough({ text, className, children, ...props }: TextProps) {
-  const nodeId = useNodeID();
-  return <s className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</s>;
-}
-
-export function Underline({ text, className, children, ...props }: TextProps) {
-  const nodeId = useNodeID();
-  return <u className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</u>;
-}
-
 export interface LinkProps {
   href?: string;
   text?: string;
