@@ -212,6 +212,12 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     tag: 'div',
     feature: 'video',
   },
+  // Lottie Animation
+  Lottie: {
+    tag: 'div',
+    xscpType: 'Animation',
+    feature: 'lottie',
+  },
   HtmlEmbed: {
     tag: 'div',
     webflowClasses: ['w-embed'],

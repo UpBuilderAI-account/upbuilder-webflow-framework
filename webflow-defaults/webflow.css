@@ -2055,6 +2055,11 @@ textarea.w-select {
   padding: 10px;
   background-color: #dddddd;
 }
+/* Hide empty state when w-dyn-items sibling exists (template imports always render items) */
+.w-dyn-items ~ .w-dyn-empty,
+.w-dyn-empty:has(~ .w-dyn-items) {
+  display: none !important;
+}
 .w-dyn-hide {
   display: none !important;
 }
@@ -2142,4 +2147,36 @@ textarea.w-select {
 .w-lightbox {
   display: inline-block;
   cursor: pointer;
+}
+
+/* ==========================================================================
+   Additional Webflow Classes - Found in template imports
+   ========================================================================== */
+
+/* Generic containers */
+.w-box {
+  display: block;
+}
+.w-content {
+  display: block;
+}
+.w-framework {
+  /* Meta class - no styles needed */
+}
+
+/* Individual tab element (w-tabs is container, w-tab is individual) */
+.w-tab {
+  display: inline-block;
+}
+
+/* Icon wrappers */
+.w-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.w-icon-service {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

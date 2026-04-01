@@ -28,6 +28,7 @@
     "webflow-defaults"
   ],
   "dependencies": {
+    "lottie-web": "^5.12.0",
     "swiper": "^11.0.0"
   },
   "devDependencies": {

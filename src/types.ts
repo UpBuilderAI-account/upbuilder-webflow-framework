@@ -281,6 +281,7 @@ export type ComponentFeature =
   | 'forms'
   | 'lightbox'
   | 'video'
+  | 'lottie'
   | 'cms'
   | 'symbol';
 
@@ -292,6 +293,7 @@ export interface UsedFeatures {
   forms: boolean;
   lightbox: boolean;
   video: boolean;
+  lottie: boolean;
   cms: boolean;
   symbol: boolean;
 }
@@ -305,6 +307,7 @@ export function createUsedFeatures(features: Partial<UsedFeatures> = {}): UsedFe
     forms: features.forms ?? false,
     lightbox: features.lightbox ?? false,
     video: features.video ?? false,
+    lottie: features.lottie ?? false,
     cms: features.cms ?? false,
     symbol: features.symbol ?? false,
   };

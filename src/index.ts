@@ -53,3 +53,6 @@ export * from './cms-context';
 
 // Symbol/Component support for Webflow round-trip
 export * from './symbol';
+
+// Lottie Animations
+export * from './lottie';
