@@ -1,6 +1,6 @@
 {
   "name": "@upbuilder/webflow-framework",
-  "version": "1.2.0-cd8d084",
+  "version": "1.2.0-964c59f",
   "description": "UpBuilder React components, types, and component registry for Webflow export",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
