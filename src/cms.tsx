@@ -135,6 +135,7 @@ export function DynamoWrapper({
         {...rest}
         className={className}
         data-up-node-id={nodeId}
+        data-up-cms-collection={col}
         data-dyn-collection={col}
         data-dyn-limit={lim}
         data-dyn-offset={offset}
@@ -420,8 +421,9 @@ export interface DynLinkProps {
 export function DynLink({ field, newTab, className, children, ...rest }: DynLinkProps) {
   const nodeId = useNodeID();
   const value = useCmsFieldValue(field);
-  const href = value || '#';
-  const displayText = children ?? value ?? `{${field}}`;
+  // Value can be a URL string or an object { url, text }
+  const href = typeof value === 'string' ? value : value?.url || '#';
+  const displayText = children ?? (typeof value === 'object' ? value?.text : value) ?? `{${field}}`;
 
   return (
     <a
