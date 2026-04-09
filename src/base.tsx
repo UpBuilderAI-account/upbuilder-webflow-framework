@@ -2,31 +2,57 @@
  * Base components - local implementations
  */
 import React from 'react';
-import type { VideoSettings } from './types';
+import type { VideoSettings, AnimationEffect } from './types';
 import { useNodeID } from './node-id';
+
+// Re-export AnimationEffect for convenience
+export type { AnimationEffect } from './types';
 
 export interface BlockProps {
   className?: string;
   tag?: keyof JSX.IntrinsicElements;
   children?: React.ReactNode;
-  animate?: string;
+  /** Scroll reveal animation - triggers when element scrolls into view */
+  animate?: AnimationEffect;
+  /** Hover animation - triggers on mouse enter/leave */
+  animateHover?: AnimationEffect;
+  /** Click animation - triggers on click (toggle) */
+  animateClick?: AnimationEffect;
+  /** Page load animation - triggers when page loads */
+  animatePageLoad?: AnimationEffect;
   [key: string]: any;
 }
 
-export function Block({ className, tag = 'div', children, animate, ...props }: BlockProps) {
+export function Block({ className, tag = 'div', children, animate, animateHover, animateClick, animatePageLoad, ...props }: BlockProps) {
   const nodeId = useNodeID();
   const Tag = tag as any;
   return (
-    <Tag className={className} data-animate={animate} data-up-node-id={nodeId} {...props}>
+    <Tag
+      className={className}
+      data-animate={animate}
+      data-animate-hover={animateHover}
+      data-animate-click={animateClick}
+      data-animate-pageload={animatePageLoad}
+      data-up-node-id={nodeId}
+      {...props}
+    >
       {children}
     </Tag>
   );
 }
 
-export function Section({ className, children, animate, ...props }: BlockProps) {
+export function Section({ className, children, animate, animateHover, animateClick, animatePageLoad, ...props }: BlockProps) {
   const nodeId = useNodeID();
   return (
-    <section className={className} data-animate={animate} data-up-node-id={nodeId} {...props}>
+    <section
+      className={className}
+      data-animate={animate}
+      data-animate-hover={animateHover}
+      data-animate-click={animateClick}
+      data-animate-pageload={animatePageLoad}
+      data-up-node-id={nodeId}
+      {...props}
+    >
       {children}
     </section>
   );

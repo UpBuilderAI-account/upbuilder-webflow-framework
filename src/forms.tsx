@@ -26,9 +26,16 @@ interface FormTextareaPropsBase {
   maxLength?: number;
 }
 
+export interface FormSelectOption {
+  value: string;
+  text: string;
+}
+
 interface FormSelectPropsBase {
   name?: string;
   required?: boolean;
+  multiple?: boolean;
+  options?: FormSelectOption[];
 }
 
 export interface FormCheckboxProps {
@@ -154,11 +161,13 @@ export interface FormSelectComponentProps extends FormSelectPropsBase {
   [key: string]: any;
 }
 
-export function FormSelect({ name, required, className, children, onChange, ...rest }: FormSelectComponentProps) {
+export function FormSelect({ name, required, multiple, options, className, children, onChange, ...rest }: FormSelectComponentProps) {
   const nodeId = useNodeID();
   return (
-    <select {...rest} name={name} required={required} className={`${className || ''} w-select`} onChange={onChange} data-up-node-id={nodeId}>
-      {children}
+    <select {...rest} name={name} required={required} multiple={multiple} className={`${className || ''} w-select`} onChange={onChange} data-up-node-id={nodeId} data-form-options={options ? JSON.stringify(options) : undefined}>
+      {options ? options.map((opt, i) => (
+        <option key={i} value={opt.value}>{opt.text}</option>
+      )) : children}
     </select>
   );
 }
@@ -242,67 +251,6 @@ export function FormErrorMessage({ text, className, children, ...rest }: FormMes
     return <div {...rest} className={`${className || ''} w-form-fail`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
   }
   return <div {...rest} className={`${className || ''} w-form-fail`} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
-}
-
-// File upload components (simplified)
-export function FormFileUploadWrapper({ className, children, ...rest }: FormWrapperProps) {
-  const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload`} data-up-node-id={nodeId}>{children}</div>;
-}
-
-export function FormFileUploadDefault({ className, children, ...rest }: FormWrapperProps) {
-  const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload-default`} data-up-node-id={nodeId}>{children}</div>;
-}
-
-export function FormFileUploadUploading({ className, children, ...rest }: FormWrapperProps) {
-  const nodeId = useNodeID();
-  const staticMode = useStaticMode();
-  // In static mode, hide uploading state
-  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
-  return <div {...rest} className={`${className || ''} w-file-upload-uploading`} style={style} data-up-node-id={nodeId}>{children}</div>;
-}
-
-export function FormFileUploadSuccess({ className, children, ...rest }: FormWrapperProps) {
-  const nodeId = useNodeID();
-  const staticMode = useStaticMode();
-  // In static mode, hide success state
-  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
-  return <div {...rest} className={`${className || ''} w-file-upload-success`} style={style} data-up-node-id={nodeId}>{children}</div>;
-}
-
-export function FormFileUploadError({ className, children, ...rest }: FormWrapperProps) {
-  const nodeId = useNodeID();
-  const staticMode = useStaticMode();
-  // In static mode, hide error state
-  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
-  return <div {...rest} className={`${className || ''} w-file-upload-error`} style={style} data-up-node-id={nodeId}>{children}</div>;
-}
-
-export interface FormFileUploadInputProps {
-  name?: string;
-  accept?: string;
-  className?: string;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  [key: string]: any;
-}
-
-export function FormFileUploadInput({ name, accept, className, onChange, ...rest }: FormFileUploadInputProps) {
-  const nodeId = useNodeID();
-  return <input {...rest} type="file" name={name} accept={accept} className={`${className || ''} w-file-upload-input`} onChange={onChange} data-up-node-id={nodeId} />;
-}
-
-export function FormFileUploadLabel({ text, className, children, ...rest }: FormMessageProps) {
-  const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-file-upload-label`} data-up-node-id={nodeId}>{children || text}</div>;
-}
-
-export function FormFileUploadErrorMsg({ text, className, children, ...rest }: FormMessageProps) {
-  const nodeId = useNodeID();
-  const staticMode = useStaticMode();
-  // In static mode, hide error message
-  const style = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
-  return <div {...rest} className={`${className || ''} w-file-upload-error-msg`} style={style} data-up-node-id={nodeId}>{children || text}</div>;
 }
 
 export interface FormReCaptchaProps {

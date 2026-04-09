@@ -180,6 +180,30 @@ export function convertLegacyStyle(legacy: {
 }
 
 // =============================================================================
+// ANIMATION TYPES
+// =============================================================================
+
+/**
+ * Animation effect types for IX2 animations
+ */
+export type AnimationEffect =
+  | 'slide-up'
+  | 'slide-down'
+  | 'slide-left'
+  | 'slide-right'
+  | 'fade-in'
+  | 'pop'
+  | 'grow'
+  | 'bounce'
+  | 'shrink'
+  | 'flip';
+
+/**
+ * Animation trigger types
+ */
+export type AnimationTrigger = 'scroll' | 'hover' | 'click' | 'pageLoad' | 'dropdownOpen' | 'dropdownClose';
+
+// =============================================================================
 // COMPONENT SETTINGS
 // =============================================================================
 
@@ -224,6 +248,10 @@ export interface DropdownSettings {
   delay?: number;
   startOpen?: boolean;
   accordion?: boolean;
+  /** Animation effect when dropdown opens */
+  animateOpen?: AnimationEffect;
+  /** Animation effect when dropdown closes */
+  animateClose?: AnimationEffect;
 }
 
 export interface TabsSettings {

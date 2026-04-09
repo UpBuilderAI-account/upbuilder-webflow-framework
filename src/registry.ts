@@ -446,47 +446,6 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     webflowClasses: ['w-form-fail'],
     feature: 'forms',
   },
-  FormFileUploadWrapper: {
-    tag: 'div',
-    webflowClasses: ['w-file-upload'],
-    feature: 'forms',
-  },
-  FormFileUploadInput: {
-    tag: 'input',
-    webflowClasses: ['w-file-upload-input'],
-    feature: 'forms',
-    voidElement: true,
-  },
-  FormFileUploadLabel: {
-    tag: 'label',
-    webflowClasses: ['w-file-upload-label'],
-    feature: 'forms',
-  },
-  FormFileUploadErrorMsg: {
-    tag: 'div',
-    webflowClasses: ['w-file-upload-error-msg'],
-    feature: 'forms',
-  },
-  FormFileUploadDefault: {
-    tag: 'div',
-    webflowClasses: ['w-file-upload-default'],
-    feature: 'forms',
-  },
-  FormFileUploadUploading: {
-    tag: 'div',
-    webflowClasses: ['w-file-upload-uploading'],
-    feature: 'forms',
-  },
-  FormFileUploadSuccess: {
-    tag: 'div',
-    webflowClasses: ['w-file-upload-success'],
-    feature: 'forms',
-  },
-  FormFileUploadError: {
-    tag: 'div',
-    webflowClasses: ['w-file-upload-error'],
-    feature: 'forms',
-  },
   FormReCaptcha: {
     tag: 'div',
     feature: 'forms',

@@ -5,11 +5,17 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
 
+import type { AnimationEffect } from './types';
+
 // Dropdown configuration props
 export interface DropdownProps {
   open?: boolean;
   hover?: boolean;
   delay?: number;
+  /** Animation effect when dropdown opens */
+  animateOpen?: AnimationEffect;
+  /** Animation effect when dropdown closes */
+  animateClose?: AnimationEffect;
 }
 
 // ============================================================================
@@ -53,6 +59,8 @@ export function DropdownWrapper({
   hover = false,
   delay = 200,
   startOpen = false,
+  animateOpen,
+  animateClose,
   ...rest
 }: DropdownWrapperProps) {
   const nodeId = useNodeID();
@@ -107,6 +115,8 @@ export function DropdownWrapper({
         onMouseLeave={isHover && !staticMode ? close : undefined}
         data-hover={isHover ? 'true' : 'false'}
         data-open={effectiveIsOpen}
+        data-animate-open={animateOpen}
+        data-animate-close={animateClose}
         data-up-node-id={nodeId}
       >
         {children}
