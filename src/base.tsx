@@ -2,11 +2,11 @@
  * Base components - local implementations
  */
 import React from 'react';
-import type { VideoSettings, AnimationEffect } from './types';
+import type { VideoSettings, AnimationEffect, AnimationEasing } from './types';
 import { useNodeID } from './node-id';
 
-// Re-export AnimationEffect for convenience
-export type { AnimationEffect } from './types';
+// Re-export animation types for convenience
+export type { AnimationEffect, AnimationEasing } from './types';
 
 export interface BlockProps {
   className?: string;
@@ -20,10 +20,16 @@ export interface BlockProps {
   animateClick?: AnimationEffect;
   /** Page load animation - triggers when page loads */
   animatePageLoad?: AnimationEffect;
+  /** Animation delay in milliseconds */
+  animateDelay?: number;
+  /** Animation duration in milliseconds */
+  animateDuration?: number;
+  /** Animation easing function */
+  animateEasing?: AnimationEasing;
   [key: string]: any;
 }
 
-export function Block({ className, tag = 'div', children, animate, animateHover, animateClick, animatePageLoad, ...props }: BlockProps) {
+export function Block({ className, tag = 'div', children, animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...props }: BlockProps) {
   const nodeId = useNodeID();
   const Tag = tag as any;
   return (
@@ -33,6 +39,9 @@ export function Block({ className, tag = 'div', children, animate, animateHover,
       data-animate-hover={animateHover}
       data-animate-click={animateClick}
       data-animate-pageload={animatePageLoad}
+      data-animate-delay={animateDelay}
+      data-animate-duration={animateDuration}
+      data-animate-easing={animateEasing}
       data-up-node-id={nodeId}
       {...props}
     >
@@ -41,7 +50,7 @@ export function Block({ className, tag = 'div', children, animate, animateHover,
   );
 }
 
-export function Section({ className, children, animate, animateHover, animateClick, animatePageLoad, ...props }: BlockProps) {
+export function Section({ className, children, animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...props }: BlockProps) {
   const nodeId = useNodeID();
   return (
     <section
@@ -50,6 +59,9 @@ export function Section({ className, children, animate, animateHover, animateCli
       data-animate-hover={animateHover}
       data-animate-click={animateClick}
       data-animate-pageload={animatePageLoad}
+      data-animate-delay={animateDelay}
+      data-animate-duration={animateDuration}
+      data-animate-easing={animateEasing}
       data-up-node-id={nodeId}
       {...props}
     >

@@ -203,6 +203,11 @@ export type AnimationEffect =
  */
 export type AnimationTrigger = 'scroll' | 'hover' | 'click' | 'pageLoad' | 'dropdownOpen' | 'dropdownClose';
 
+/**
+ * Animation easing types (maps to GSAP easing)
+ */
+export type AnimationEasing = 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
+
 // =============================================================================
 // COMPONENT SETTINGS
 // =============================================================================
