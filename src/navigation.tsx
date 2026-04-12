@@ -2,9 +2,37 @@
  * Navigation components - local implementations
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { NavbarSettings } from './types';
+import type { NavbarSettings, AnimationEffect, AnimationEasing } from './types';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
+
+// Animation props interface
+interface AnimationProps {
+  animate?: AnimationEffect;
+  animateHover?: AnimationEffect;
+  animateClick?: AnimationEffect;
+  animatePageLoad?: AnimationEffect;
+  animateDelay?: number;
+  animateDuration?: number;
+  animateEasing?: AnimationEasing;
+}
+
+function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
+  const attrs: Record<string, any> = {};
+  if (props.animate) attrs['data-animate'] = props.animate;
+  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
+  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
+  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
+  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
+  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
+  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
+  return attrs;
+}
+
+function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
+  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
+  return rest as Omit<T, keyof AnimationProps>;
+}
 
 // ============================================================================
 // NAVBAR CONTEXT
@@ -29,7 +57,7 @@ function useNavbarContext() {
 // NAVBAR COMPONENTS
 // ============================================================================
 
-export interface NavbarWrapperProps {
+export interface NavbarWrapperProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   collapse?: 'small' | 'medium' | 'all';
@@ -50,25 +78,23 @@ const DEFAULT_NAVBAR: Required<NavbarSettings> = {
 export function NavbarWrapper({ className, children, collapse, settings, ...rest }: NavbarWrapperProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   const s = { ...DEFAULT_NAVBAR, ...settings };
-  // Use settings collapseAt if provided, otherwise use collapse prop, otherwise default
   const collapseBreakpoint = s.collapseAt === 'none' ? 'none' : (collapse || s.collapseAt);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  // In static mode, menu is always closed
   const effectiveMenuOpen = staticMode ? false : isMenuOpen;
 
   const toggleMenu = () => {
-    if (staticMode) return; // No-op in static mode
+    if (staticMode) return;
     setIsMenuOpen(!isMenuOpen);
   };
   const closeMenu = () => {
-    if (staticMode) return; // No-op in static mode
+    if (staticMode) return;
     setIsMenuOpen(false);
   };
 
-  // Get breakpoint width
   const getBreakpointWidth = () => {
     switch (collapseBreakpoint) {
       case 'small': return 767;
@@ -77,7 +103,6 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
     }
   };
 
-  // Close menu on resize to desktop
   useEffect(() => {
     if (staticMode || collapseBreakpoint === 'none') return;
     const handleResize = () => {
@@ -92,7 +117,8 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
   return (
     <NavbarContext.Provider value={{ isMenuOpen: effectiveMenuOpen, toggleMenu, closeMenu, staticMode }}>
       <div
-        {...rest}
+        {...props}
+        {...animAttrs}
         className={`${className || ''} w-nav`}
         data-up-node-id={nodeId}
         data-collapse={collapseBreakpoint}
@@ -101,7 +127,6 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
         role="banner"
       >
         {children}
-        {/* Mobile overlay - never shown in static mode */}
         {effectiveMenuOpen && (
           <div
             className="w-nav-overlay w--open"
@@ -116,13 +141,21 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
   );
 }
 
-/** @deprecated Use Block instead - NavbarContainer is not a valid Webflow component */
-export function NavbarContainer({ className, children, ...rest }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
-  const nodeId = useNodeID();
-  return <div {...rest} className={className} data-up-node-id={nodeId}>{children}</div>;
+export interface NavbarContainerProps extends AnimationProps {
+  className?: string;
+  children?: React.ReactNode;
+  [key: string]: any;
 }
 
-export interface NavbarBrandProps {
+/** @deprecated Use Block instead - NavbarContainer is not a valid Webflow component */
+export function NavbarContainer({ className, children, ...rest }: NavbarContainerProps) {
+  const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <div {...props} {...animAttrs} className={className} data-up-node-id={nodeId}>{children}</div>;
+}
+
+export interface NavbarBrandProps extends AnimationProps {
   href?: string;
   className?: string;
   children?: React.ReactNode;
@@ -131,14 +164,16 @@ export interface NavbarBrandProps {
 
 export function NavbarBrand({ href = '/', className, children, ...rest }: NavbarBrandProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <a {...rest} className={`${className || ''} w-nav-brand`} href={href} aria-label="home" data-up-node-id={nodeId}>
+    <a {...props} {...animAttrs} className={`${className || ''} w-nav-brand`} href={href} aria-label="home" data-up-node-id={nodeId}>
       {children}
     </a>
   );
 }
 
-export interface NavbarMenuProps {
+export interface NavbarMenuProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -147,20 +182,24 @@ export interface NavbarMenuProps {
 export function NavbarMenu({ className, children, ...rest }: NavbarMenuProps) {
   const nodeId = useNodeID();
   const { isMenuOpen, staticMode } = useNavbarContext();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
 
   return (
     <nav
-      {...rest}
+      {...props}
+      {...animAttrs}
       className={`${className || ''} w-nav-menu ${isMenuOpen ? 'w--open' : ''}`}
       role="navigation"
       data-up-node-id={nodeId}
+      {...(isMenuOpen ? { 'data-nav-menu-open': '' } : {})}
     >
       {children}
     </nav>
   );
 }
 
-export interface NavbarLinkProps {
+export interface NavbarLinkProps extends AnimationProps {
   text?: string;
   href?: string;
   isActive?: boolean;
@@ -172,10 +211,13 @@ export interface NavbarLinkProps {
 export function NavbarLink({ text, href = '#', isActive, className, children, ...rest }: NavbarLinkProps) {
   const nodeId = useNodeID();
   const { isMenuOpen, closeMenu } = useNavbarContext();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
 
   return (
     <a
-      {...rest}
+      {...props}
+      {...animAttrs}
       className={`${className || ''} w-nav-link ${isMenuOpen ? 'w--nav-link-open' : ''}`}
       href={href}
       aria-current={isActive ? 'page' : undefined}
@@ -187,7 +229,7 @@ export function NavbarLink({ text, href = '#', isActive, className, children, ..
   );
 }
 
-export interface NavbarButtonProps {
+export interface NavbarButtonProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -196,10 +238,13 @@ export interface NavbarButtonProps {
 export function NavbarButton({ className, children, ...rest }: NavbarButtonProps) {
   const nodeId = useNodeID();
   const { isMenuOpen, toggleMenu, staticMode } = useNavbarContext();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
 
   return (
     <div
-      {...rest}
+      {...props}
+      {...animAttrs}
       className={`${className || ''} w-nav-button ${isMenuOpen ? 'w--open' : ''}`}
       onClick={staticMode ? undefined : toggleMenu}
       role="button"

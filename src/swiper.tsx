@@ -1,6 +1,5 @@
 /**
  * Swiper Slider components - using Swiper library
- * Full-featured, modern slider with no restrictions
  */
 import React, { useRef, useEffect, useCallback, Children, isValidElement } from 'react';
 import { Swiper, SwiperSlide as SwiperSlideCore } from 'swiper/react';
@@ -9,8 +8,8 @@ import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
 import { Navigation, Pagination, Scrollbar, Autoplay, EffectFade, EffectCube, EffectCoverflow, EffectFlip, EffectCards, EffectCreative, FreeMode } from 'swiper/modules';
 import type { SwiperOptions } from 'swiper/types';
+import type { AnimationEffect, AnimationEasing } from './types';
 
-// Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -23,14 +22,41 @@ import 'swiper/css/effect-cards';
 import 'swiper/css/effect-creative';
 import 'swiper/css/free-mode';
 
+// Animation props interface
+interface AnimationProps {
+  animate?: AnimationEffect;
+  animateHover?: AnimationEffect;
+  animateClick?: AnimationEffect;
+  animatePageLoad?: AnimationEffect;
+  animateDelay?: number;
+  animateDuration?: number;
+  animateEasing?: AnimationEasing;
+}
+
+function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
+  const attrs: Record<string, any> = {};
+  if (props.animate) attrs['data-animate'] = props.animate;
+  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
+  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
+  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
+  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
+  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
+  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
+  return attrs;
+}
+
+function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
+  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
+  return rest as Omit<T, keyof AnimationProps>;
+}
+
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface SwiperSliderProps {
+export interface SwiperSliderProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
-  // Core settings
   slidesPerView?: number | 'auto';
   spaceBetween?: number;
   direction?: 'horizontal' | 'vertical';
@@ -38,31 +64,24 @@ export interface SwiperSliderProps {
   speed?: number;
   initialSlide?: number;
   slidesPerGroup?: number;
-  // Autoplay
   autoplay?: boolean | { delay?: number; disableOnInteraction?: boolean; pauseOnMouseEnter?: boolean };
-  // Effects
   effect?: 'slide' | 'fade' | 'cube' | 'coverflow' | 'flip' | 'cards' | 'creative';
-  // Navigation
   navigation?: boolean;
   pagination?: boolean | { type?: 'bullets' | 'fraction' | 'progressbar'; clickable?: boolean };
   scrollbar?: boolean | { draggable?: boolean };
-  // Touch & Interaction
   allowTouchMove?: boolean;
   grabCursor?: boolean;
   freeMode?: boolean;
   centeredSlides?: boolean;
-  // Responsive - simple props (preferred over breakpoints object)
-  slidesPerViewTablet?: number;  // At 768-991px
-  slidesPerViewMobile?: number;  // At 0-767px
+  slidesPerViewTablet?: number;
+  slidesPerViewMobile?: number;
   spaceBetweenTablet?: number;
   spaceBetweenMobile?: number;
-  // Responsive - advanced (raw Swiper breakpoints)
   breakpoints?: Record<number, Partial<SwiperOptions>>;
-  // Other props
   [key: string]: any;
 }
 
-export interface SwiperSlideProps {
+export interface SwiperSlideProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -72,10 +91,6 @@ export interface SwiperSlideProps {
 // COMPONENTS
 // ============================================================================
 
-/**
- * SwiperSlider - Main slider container
- * Wraps Swiper library with support for custom navigation/pagination placement
- */
 export function SwiperSlider({
   className,
   children,
@@ -95,118 +110,76 @@ export function SwiperSlider({
   grabCursor = false,
   freeMode = false,
   centeredSlides = false,
-  // Responsive simple props
   slidesPerViewTablet,
   slidesPerViewMobile,
   spaceBetweenTablet,
   spaceBetweenMobile,
   breakpoints: breakpointsProp,
-  ...props
+  ...rest
 }: SwiperSliderProps) {
-  // Build breakpoints from simple responsive props if not using raw breakpoints
   const hasResponsiveProps = slidesPerViewTablet !== undefined || slidesPerViewMobile !== undefined ||
                               spaceBetweenTablet !== undefined || spaceBetweenMobile !== undefined;
 
   const breakpoints = breakpointsProp || (hasResponsiveProps ? (() => {
     const bp: Record<number, Partial<SwiperOptions>> = {};
-
-    // Mobile first: 0px+ (mobile values)
     if (slidesPerViewMobile !== undefined || spaceBetweenMobile !== undefined) {
       bp[0] = {};
       if (slidesPerViewMobile !== undefined) bp[0].slidesPerView = slidesPerViewMobile;
       if (spaceBetweenMobile !== undefined) bp[0].spaceBetween = spaceBetweenMobile;
     }
-
-    // Tablet: 768px+
     if (slidesPerViewTablet !== undefined || spaceBetweenTablet !== undefined) {
       bp[768] = {};
       if (slidesPerViewTablet !== undefined) bp[768].slidesPerView = slidesPerViewTablet;
       if (spaceBetweenTablet !== undefined) bp[768].spaceBetween = spaceBetweenTablet;
     }
-
-    // Desktop: 992px+ (use main slidesPerView/spaceBetween)
-    bp[992] = {
-      slidesPerView,
-      spaceBetween,
-    };
-
+    bp[992] = { slidesPerView, spaceBetween };
     return bp;
   })() : undefined);
 
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   const containerRef = useRef<HTMLDivElement>(null);
   const swiperRef = useRef<SwiperType | null>(null);
 
-  // Handle clicks on custom nav elements via event delegation
-  // This is more reliable than Swiper's navigation.init() for custom elements
   const handleContainerClick = useCallback((e: React.MouseEvent) => {
     if (staticMode || !swiperRef.current) return;
-
     const target = e.target as HTMLElement;
-    // Check if click is on or inside a nav element
     const navEl = target.closest('[data-swiper-nav]') as HTMLElement;
     if (!navEl) return;
-
     const navType = navEl.getAttribute('data-swiper-nav');
-    if (navType === 'prev') {
-      swiperRef.current.slidePrev();
-    } else if (navType === 'next') {
-      swiperRef.current.slideNext();
-    }
+    if (navType === 'prev') swiperRef.current.slidePrev();
+    else if (navType === 'next') swiperRef.current.slideNext();
   }, [staticMode]);
 
-  // In static mode: disable autoplay, touch interactions, and show first slide
   const effectiveAutoplay = staticMode ? false : autoplay;
   const effectiveAllowTouchMove = staticMode ? false : allowTouchMove;
   const effectiveGrabCursor = staticMode ? false : grabCursor;
   const effectiveInitialSlide = staticMode ? 0 : initialSlide;
 
-  // Separate children into slides and other elements
   const slides: React.ReactNode[] = [];
   const otherChildren: React.ReactNode[] = [];
-
-  // Track if we have custom nav/pagination (for Swiper config)
   let hasCustomNav = false;
   let hasCustomPagination = false;
   let hasCustomScrollbar = false;
 
-  // Recursively check if a node tree contains swiper controls
   const checkForControls = (node: React.ReactNode): void => {
     if (!isValidElement(node)) return;
     const displayName = (node.type as any)?.displayName || (node.type as any)?.name;
-    if (displayName === 'SwiperNavPrev' || displayName === 'SwiperNavNext' || node.type === SwiperNavPrev || node.type === SwiperNavNext) {
-      hasCustomNav = true;
-    }
-    if (displayName === 'SwiperPagination' || node.type === SwiperPagination) {
-      hasCustomPagination = true;
-    }
-    if (displayName === 'SwiperScrollbar' || node.type === SwiperScrollbar) {
-      hasCustomScrollbar = true;
-    }
-    // Check nested children
+    if (displayName === 'SwiperNavPrev' || displayName === 'SwiperNavNext' || node.type === SwiperNavPrev || node.type === SwiperNavNext) hasCustomNav = true;
+    if (displayName === 'SwiperPagination' || node.type === SwiperPagination) hasCustomPagination = true;
+    if (displayName === 'SwiperScrollbar' || node.type === SwiperScrollbar) hasCustomScrollbar = true;
     Children.forEach((node.props as any)?.children, checkForControls);
   };
 
   Children.forEach(children, (child) => {
-    if (!isValidElement(child)) {
-      otherChildren.push(child);
-      return;
-    }
-
+    if (!isValidElement(child)) { otherChildren.push(child); return; }
     const displayName = (child.type as any)?.displayName || (child.type as any)?.name;
-
-    if (displayName === 'SwiperSlide' || child.type === SwiperSlide) {
-      slides.push(child);
-    } else {
-      // Check this child and its descendants for controls
-      checkForControls(child);
-      // Keep all non-slide children in otherChildren (including wrappers with nav elements)
-      otherChildren.push(child);
-    }
+    if (displayName === 'SwiperSlide' || child.type === SwiperSlide) slides.push(child);
+    else { checkForControls(child); otherChildren.push(child); }
   });
 
-  // Build modules array based on enabled features
   const modules = [Navigation, Pagination, Scrollbar, Autoplay, FreeMode];
   if (effect === 'fade') modules.push(EffectFade);
   if (effect === 'cube') modules.push(EffectCube);
@@ -215,27 +188,15 @@ export function SwiperSlider({
   if (effect === 'cards') modules.push(EffectCards);
   if (effect === 'creative') modules.push(EffectCreative);
 
-  // Build autoplay config (disabled in static mode)
   const autoplayConfig = effectiveAutoplay === true
     ? { delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }
     : effectiveAutoplay || false;
 
-  // Build pagination config - use data attribute selector if we have custom pagination
-  const paginationConfig = pagination === true
-    ? { clickable: true }
-    : pagination
-      ? { ...pagination }
-      : false;
-
-  // Build scrollbar config
-  const scrollbarConfig = scrollbar === true
-    ? { draggable: true }
-    : scrollbar
-      ? { ...scrollbar }
-      : false;
+  const paginationConfig = pagination === true ? { clickable: true } : pagination ? { ...pagination } : false;
+  const scrollbarConfig = scrollbar === true ? { draggable: true } : scrollbar ? { ...scrollbar } : false;
 
   return (
-    <div ref={containerRef} className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} onClick={handleContainerClick} {...props}>
+    <div ref={containerRef} className={`${className || ''} swiper`} data-swiper-container="true" data-up-node-id={nodeId} onClick={handleContainerClick} {...props} {...animAttrs}>
       <Swiper
         modules={modules}
         slidesPerView={slidesPerView}
@@ -247,61 +208,31 @@ export function SwiperSlider({
         slidesPerGroup={slidesPerGroup}
         autoplay={autoplayConfig}
         effect={effect}
-        // For custom nav: we handle clicks via event delegation (no Swiper navigation needed)
-        // For default nav: pass true (Swiper creates its own buttons)
-        navigation={
-          staticMode ? false :
-          hasCustomNav ? false :
-          navigation
-        }
-        // For custom pagination: pass empty object to initialize module
-        pagination={
-          staticMode ? false :
-          hasCustomPagination && pagination ? { el: null } :
-          paginationConfig
-        }
-        // For custom scrollbar: pass empty object to initialize module
-        scrollbar={
-          staticMode ? false :
-          hasCustomScrollbar && scrollbar ? { el: null } :
-          scrollbarConfig
-        }
+        navigation={staticMode ? false : hasCustomNav ? false : navigation}
+        pagination={staticMode ? false : hasCustomPagination && pagination ? { el: null } : paginationConfig}
+        scrollbar={staticMode ? false : hasCustomScrollbar && scrollbar ? { el: null } : scrollbarConfig}
         allowTouchMove={effectiveAllowTouchMove}
         grabCursor={effectiveGrabCursor}
         freeMode={freeMode}
         centeredSlides={centeredSlides}
         breakpoints={breakpoints}
         onSwiper={(swiper) => {
-          // Store swiper instance for click handling
           swiperRef.current = swiper;
-
-          // Connect custom pagination/scrollbar elements after Swiper is initialized
-          // Navigation is handled via event delegation (handleContainerClick)
           setTimeout(() => {
             const container = containerRef.current;
             if (!container) return;
-
-            // Connect custom pagination via data attribute
             if (hasCustomPagination && pagination) {
               const paginationEl = container.querySelector('[data-swiper-pagination="true"]') as HTMLElement;
               if (paginationEl) {
-                swiper.params.pagination = {
-                  ...(typeof paginationConfig === 'object' ? paginationConfig : { clickable: true }),
-                  el: paginationEl,
-                };
+                swiper.params.pagination = { ...(typeof paginationConfig === 'object' ? paginationConfig : { clickable: true }), el: paginationEl };
                 swiper.pagination.init();
                 swiper.pagination.update();
               }
             }
-
-            // Connect custom scrollbar via data attribute
             if (hasCustomScrollbar && scrollbar) {
               const scrollbarEl = container.querySelector('[data-swiper-scrollbar="true"]') as HTMLElement;
               if (scrollbarEl) {
-                swiper.params.scrollbar = {
-                  ...(typeof scrollbarConfig === 'object' ? scrollbarConfig : { draggable: true }),
-                  el: scrollbarEl,
-                };
+                swiper.params.scrollbar = { ...(typeof scrollbarConfig === 'object' ? scrollbarConfig : { draggable: true }), el: scrollbarEl };
                 swiper.scrollbar.init();
                 (swiper.scrollbar as any).update();
               }
@@ -310,8 +241,6 @@ export function SwiperSlider({
         }}
       >
         {slides.map((slide, idx) => {
-          // SwiperSlide component already renders content - just extract children
-          // to avoid double-nesting (SwiperSlideCore would add another swiper-slide div)
           const slideElement = slide as React.ReactElement<SwiperSlideProps>;
           return (
             <SwiperSlideCore key={idx} className={slideElement.props.className}>
@@ -320,36 +249,34 @@ export function SwiperSlider({
           );
         })}
       </Swiper>
-
-      {/* Custom controls rendered outside Swiper for flexible placement */}
-      {/* Note: Controls stay in otherChildren if wrapped in a Block - they're only
-          extracted here if they're direct children of SwiperSlider */}
       {otherChildren}
     </div>
   );
 }
 
-/**
- * SwiperSlide - Individual slide
- */
-export function SwiperSlide({ className, children, ...props }: SwiperSlideProps) {
+export function SwiperSlide({ className, children, ...rest }: SwiperSlideProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <div className={`${className || ''} swiper-slide`} data-swiper-slide="true" data-up-node-id={nodeId} {...props}>
+    <div className={`${className || ''} swiper-slide`} data-swiper-slide="true" data-up-node-id={nodeId} {...props} {...animAttrs}>
       {children}
     </div>
   );
 }
 SwiperSlide.displayName = 'SwiperSlide';
 
-/**
- * SwiperNavPrev - Previous navigation button
- * NOTE: We don't add swiper-button-prev class because it shows Swiper's default arrow via ::after
- * The init script connects this element via data-swiper-nav attribute instead
- */
-export function SwiperNavPrev({ className, children, ...props }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
+export interface SwiperNavProps extends AnimationProps {
+  className?: string;
+  children?: React.ReactNode;
+  [key: string]: any;
+}
+
+export function SwiperNavPrev({ className, children, ...rest }: SwiperNavProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
     <div
       className={className || ''}
@@ -360,6 +287,7 @@ export function SwiperNavPrev({ className, children, ...props }: { className?: s
       data-up-node-id={nodeId}
       style={staticMode ? { cursor: 'default', pointerEvents: 'none' } : undefined}
       {...props}
+      {...animAttrs}
     >
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -371,14 +299,11 @@ export function SwiperNavPrev({ className, children, ...props }: { className?: s
 }
 SwiperNavPrev.displayName = 'SwiperNavPrev';
 
-/**
- * SwiperNavNext - Next navigation button
- * NOTE: We don't add swiper-button-next class because it shows Swiper's default arrow via ::after
- * The init script connects this element via data-swiper-nav attribute instead
- */
-export function SwiperNavNext({ className, children, ...props }: { className?: string; children?: React.ReactNode; [key: string]: any }) {
+export function SwiperNavNext({ className, children, ...rest }: SwiperNavProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
     <div
       className={className || ''}
@@ -389,6 +314,7 @@ export function SwiperNavNext({ className, children, ...props }: { className?: s
       data-up-node-id={nodeId}
       style={staticMode ? { cursor: 'default', pointerEvents: 'none' } : undefined}
       {...props}
+      {...animAttrs}
     >
       {children || (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -400,23 +326,23 @@ export function SwiperNavNext({ className, children, ...props }: { className?: s
 }
 SwiperNavNext.displayName = 'SwiperNavNext';
 
-/**
- * SwiperPagination - Pagination dots/bullets
- * NOTE: We don't add swiper-pagination class because it shows Swiper's default dots
- * For custom pagination, use your own styling; for default dots, Swiper will populate this element
- */
-export function SwiperPagination({ className, ...props }: { className?: string; [key: string]: any }) {
+export interface SwiperPaginationProps extends AnimationProps {
+  className?: string;
+  [key: string]: any;
+}
+
+export function SwiperPagination({ className, ...rest }: SwiperPaginationProps) {
   const nodeId = useNodeID();
-  return <div className={className || ''} data-swiper-pagination="true" data-up-node-id={nodeId} {...props} />;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <div className={className || ''} data-swiper-pagination="true" data-up-node-id={nodeId} {...props} {...animAttrs} />;
 }
 SwiperPagination.displayName = 'SwiperPagination';
 
-/**
- * SwiperScrollbar - Scrollbar
- * NOTE: We don't add swiper-scrollbar class because it shows Swiper's default scrollbar
- */
-export function SwiperScrollbar({ className, ...props }: { className?: string; [key: string]: any }) {
+export function SwiperScrollbar({ className, ...rest }: SwiperPaginationProps) {
   const nodeId = useNodeID();
-  return <div className={className || ''} data-swiper-scrollbar="true" data-up-node-id={nodeId} {...props} />;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <div className={className || ''} data-swiper-scrollbar="true" data-up-node-id={nodeId} {...props} {...animAttrs} />;
 }
 SwiperScrollbar.displayName = 'SwiperScrollbar';

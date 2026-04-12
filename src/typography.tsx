@@ -3,6 +3,35 @@
  */
 import React from 'react';
 import { useNodeID } from './node-id';
+import type { AnimationEffect, AnimationEasing } from './types';
+
+// Animation props interface
+interface AnimationProps {
+  animate?: AnimationEffect;
+  animateHover?: AnimationEffect;
+  animateClick?: AnimationEffect;
+  animatePageLoad?: AnimationEffect;
+  animateDelay?: number;
+  animateDuration?: number;
+  animateEasing?: AnimationEasing;
+}
+
+function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
+  const attrs: Record<string, any> = {};
+  if (props.animate) attrs['data-animate'] = props.animate;
+  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
+  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
+  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
+  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
+  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
+  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
+  return attrs;
+}
+
+function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
+  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
+  return rest as Omit<T, keyof AnimationProps>;
+}
 
 /**
  * Render text with newlines as <br /> elements
@@ -20,7 +49,7 @@ function renderTextWithBreaks(text: string | undefined): React.ReactNode {
   ));
 }
 
-export interface HeadingProps {
+export interface HeadingProps extends AnimationProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   text?: string;
   richText?: boolean;
@@ -29,13 +58,15 @@ export interface HeadingProps {
   [key: string]: any;
 }
 
-export function Heading({ as = 'h2', text, richText, className, children, ...props }: HeadingProps) {
+export function Heading({ as = 'h2', text, richText, className, children, ...rest }: HeadingProps) {
   const nodeId = useNodeID();
   const Tag = as;
-  return <Tag className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</Tag>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <Tag className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</Tag>;
 }
 
-export interface TextProps {
+export interface TextProps extends AnimationProps {
   text?: string;
   richText?: boolean;
   className?: string;
@@ -43,68 +74,90 @@ export interface TextProps {
   [key: string]: any;
 }
 
-export function Paragraph({ text, richText, className, children, ...props }: TextProps) {
+export function Paragraph({ text, richText, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <p className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</p>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <p className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</p>;
 }
 
-export function Span({ text, className, children, ...props }: TextProps) {
+export function Span({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <span className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</span>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <span className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</span>;
 }
 
-export function Blockquote({ text, className, children, ...props }: TextProps) {
+export function Blockquote({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <blockquote className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</blockquote>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <blockquote className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</blockquote>;
 }
 
-export interface RichTextProps {
+export interface RichTextProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
 }
 
-export function RichText({ className, children, ...props }: RichTextProps) {
+export function RichText({ className, children, ...rest }: RichTextProps) {
   const nodeId = useNodeID();
-  return <div className={`${className || ''} w-richtext`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <div className={`${className || ''} w-richtext`} data-up-node-id={nodeId} {...animAttrs} {...props}>{children}</div>;
 }
 
-export function Figure({ className, children, ...props }: RichTextProps) {
+export function Figure({ className, children, ...rest }: RichTextProps) {
   const nodeId = useNodeID();
-  return <figure className={className} data-up-node-id={nodeId} {...props}>{children}</figure>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <figure className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children}</figure>;
 }
 
-export function Figcaption({ text, className, children, ...props }: TextProps) {
+export function Figcaption({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <figcaption className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</figcaption>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <figcaption className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</figcaption>;
 }
 
-export function Strong({ text, className, children, ...props }: TextProps) {
+export function Strong({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <strong className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</strong>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <strong className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</strong>;
 }
 
-export function Emphasized({ text, className, children, ...props }: TextProps) {
+export function Emphasized({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <em className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</em>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <em className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</em>;
 }
 
-export function Superscript({ text, className, children, ...props }: TextProps) {
+export function Superscript({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <sup className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</sup>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <sup className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</sup>;
 }
 
-export function Subscript({ text, className, children, ...props }: TextProps) {
+export function Subscript({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <sub className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</sub>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <sub className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</sub>;
 }
 
-export function InlineCode({ text, className, children, ...props }: TextProps) {
+export function InlineCode({ text, className, children, ...rest }: TextProps) {
   const nodeId = useNodeID();
-  return <code className={className} data-up-node-id={nodeId} {...props}>{children || renderTextWithBreaks(text)}</code>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <code className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</code>;
 }
 
-export interface LinkProps {
+export interface LinkProps extends AnimationProps {
   href?: string;
   text?: string;
   target?: '_blank' | '_self' | '_parent' | '_top';
@@ -113,34 +166,40 @@ export interface LinkProps {
   [key: string]: any;
 }
 
-export function Link({ href = '#', text, target, className, children, ...props }: LinkProps) {
+export function Link({ href = '#', text, target, className, children, ...rest }: LinkProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <a href={href} target={target} className={className} data-up-node-id={nodeId} {...props}>
+    <a href={href} target={target} className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>
       {children || renderTextWithBreaks(text)}
     </a>
   );
 }
 
-export function LinkBlock({ href = '#', target, className, children, ...props }: LinkProps) {
+export function LinkBlock({ href = '#', target, className, children, ...rest }: LinkProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <a href={href} target={target} className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...props}>
+    <a href={href} target={target} className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...animAttrs} {...props}>
       {children}
     </a>
   );
 }
 
-export function TextLink({ href = '#', text, target, className, children, ...props }: LinkProps) {
+export function TextLink({ href = '#', text, target, className, children, ...rest }: LinkProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <a href={href} target={target} className={className} data-up-node-id={nodeId} {...props}>
+    <a href={href} target={target} className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>
       {children || renderTextWithBreaks(text)}
     </a>
   );
 }
 
-export interface ButtonProps {
+export interface ButtonProps extends AnimationProps {
   text?: string;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
@@ -148,10 +207,12 @@ export interface ButtonProps {
   [key: string]: any;
 }
 
-export function Button({ text, type = 'button', className, children, ...props }: ButtonProps) {
+export function Button({ text, type = 'button', className, children, ...rest }: ButtonProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <button type={type} className={`${className || ''} w-button`} data-up-node-id={nodeId} {...props}>
+    <button type={type} className={`${className || ''} w-button`} data-up-node-id={nodeId} {...animAttrs} {...props}>
       {children || renderTextWithBreaks(text)}
     </button>
   );

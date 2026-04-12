@@ -4,6 +4,35 @@
 import React from 'react';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
+import type { AnimationEffect, AnimationEasing } from './types';
+
+// Animation props interface
+interface AnimationProps {
+  animate?: AnimationEffect;
+  animateHover?: AnimationEffect;
+  animateClick?: AnimationEffect;
+  animatePageLoad?: AnimationEffect;
+  animateDelay?: number;
+  animateDuration?: number;
+  animateEasing?: AnimationEasing;
+}
+
+function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
+  const attrs: Record<string, any> = {};
+  if (props.animate) attrs['data-animate'] = props.animate;
+  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
+  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
+  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
+  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
+  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
+  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
+  return attrs;
+}
+
+function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
+  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
+  return rest as Omit<T, keyof AnimationProps>;
+}
 
 // Form configuration props
 export interface FormProps {
@@ -54,7 +83,7 @@ interface FormLabelPropsBase {
   htmlFor?: string;
 }
 
-export interface FormWrapperProps {
+export interface FormWrapperProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -62,10 +91,12 @@ export interface FormWrapperProps {
 
 export function FormWrapper({ className, children, ...rest }: FormWrapperProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={`${className || ''} w-form`} data-up-node-id={nodeId}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <div {...props} {...animAttrs} className={`${className || ''} w-form`} data-up-node-id={nodeId}>{children}</div>;
 }
 
-export interface FormFormProps extends FormProps {
+export interface FormFormProps extends FormProps, AnimationProps {
   action?: string;
   className?: string;
   children?: React.ReactNode;
@@ -76,21 +107,23 @@ export interface FormFormProps extends FormProps {
 export function FormForm({ name, action, method = 'post', className, children, onSubmit, ...rest }: FormFormProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (staticMode) return; // No-op in static mode
+    if (staticMode) return;
     onSubmit?.(e);
   };
 
   return (
-    <form {...rest} name={name} action={action} method={method} className={className} onSubmit={handleSubmit} data-up-node-id={nodeId}>
+    <form {...props} {...animAttrs} name={name} action={action} method={method} className={className} onSubmit={handleSubmit} data-up-node-id={nodeId}>
       {children}
     </form>
   );
 }
 
-export interface FormLabelProps extends FormLabelPropsBase {
+export interface FormLabelProps extends FormLabelPropsBase, AnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -99,15 +132,19 @@ export interface FormLabelProps extends FormLabelPropsBase {
 
 export function FormBlockLabel({ text, htmlFor, className, children, ...rest }: FormLabelProps) {
   const nodeId = useNodeID();
-  return <label {...rest} htmlFor={htmlFor} className={className} data-up-node-id={nodeId}>{children || text}</label>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <label {...props} {...animAttrs} htmlFor={htmlFor} className={className} data-up-node-id={nodeId}>{children || text}</label>;
 }
 
 export function FormInlineLabel({ text, htmlFor, className, children, ...rest }: FormLabelProps) {
   const nodeId = useNodeID();
-  return <label {...rest} htmlFor={htmlFor} className={className} style={{ display: 'inline' }} data-up-node-id={nodeId}>{children || text}</label>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <label {...props} {...animAttrs} htmlFor={htmlFor} className={className} style={{ display: 'inline' }} data-up-node-id={nodeId}>{children || text}</label>;
 }
 
-export interface FormTextInputComponentProps extends FormInputProps {
+export interface FormTextInputComponentProps extends FormInputProps, AnimationProps {
   value?: string;
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -116,9 +153,12 @@ export interface FormTextInputComponentProps extends FormInputProps {
 
 export function FormTextInput({ name, type = 'text', placeholder, required, value, className, onChange, ...rest }: FormTextInputComponentProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
     <input
-      {...rest}
+      {...props}
+      {...animAttrs}
       type={type}
       name={name}
       placeholder={placeholder}
@@ -131,7 +171,7 @@ export function FormTextInput({ name, type = 'text', placeholder, required, valu
   );
 }
 
-export interface FormTextareaComponentProps extends FormTextareaPropsBase {
+export interface FormTextareaComponentProps extends FormTextareaPropsBase, AnimationProps {
   value?: string;
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -140,9 +180,12 @@ export interface FormTextareaComponentProps extends FormTextareaPropsBase {
 
 export function FormTextarea({ name, placeholder, required, value, className, onChange, ...rest }: FormTextareaComponentProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
     <textarea
-      {...rest}
+      {...props}
+      {...animAttrs}
       name={name}
       placeholder={placeholder}
       required={required}
@@ -154,7 +197,7 @@ export function FormTextarea({ name, placeholder, required, value, className, on
   );
 }
 
-export interface FormSelectComponentProps extends FormSelectPropsBase {
+export interface FormSelectComponentProps extends FormSelectPropsBase, AnimationProps {
   className?: string;
   children?: React.ReactNode;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -163,8 +206,10 @@ export interface FormSelectComponentProps extends FormSelectPropsBase {
 
 export function FormSelect({ name, required, multiple, options, className, children, onChange, ...rest }: FormSelectComponentProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <select {...rest} name={name} required={required} multiple={multiple} className={`${className || ''} w-select`} onChange={onChange} data-up-node-id={nodeId} data-form-options={options ? JSON.stringify(options) : undefined}>
+    <select {...props} {...animAttrs} name={name} required={required} multiple={multiple} className={`${className || ''} w-select`} onChange={onChange} data-up-node-id={nodeId} data-form-options={options ? JSON.stringify(options) : undefined}>
       {options ? options.map((opt, i) => (
         <option key={i} value={opt.value}>{opt.text}</option>
       )) : children}
@@ -172,7 +217,7 @@ export function FormSelect({ name, required, multiple, options, className, child
   );
 }
 
-export interface FormButtonProps {
+export interface FormButtonProps extends AnimationProps {
   text?: string;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
@@ -182,8 +227,10 @@ export interface FormButtonProps {
 
 export function FormButton({ text, type = 'submit', className, children, ...rest }: FormButtonProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
-    <button {...rest} type={type} className={`${className || ''} w-button`} data-up-node-id={nodeId}>
+    <button {...props} {...animAttrs} type={type} className={`${className || ''} w-button`} data-up-node-id={nodeId}>
       {children || text}
     </button>
   );
@@ -191,10 +238,12 @@ export function FormButton({ text, type = 'submit', className, children, ...rest
 
 export function FormCheckboxWrapper({ className, children, ...rest }: FormWrapperProps) {
   const nodeId = useNodeID();
-  return <label {...rest} className={`${className || ''} w-checkbox`} data-up-node-id={nodeId}>{children}</label>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <label {...props} {...animAttrs} className={`${className || ''} w-checkbox`} data-up-node-id={nodeId}>{children}</label>;
 }
 
-export interface FormCheckboxInputProps {
+export interface FormCheckboxInputProps extends AnimationProps {
   name?: string;
   required?: boolean;
   className?: string;
@@ -204,15 +253,19 @@ export interface FormCheckboxInputProps {
 
 export function FormCheckboxInput({ name, required, className, onChange, ...rest }: FormCheckboxInputProps) {
   const nodeId = useNodeID();
-  return <input {...rest} type="checkbox" name={name} required={required} className={`${className || ''} w-checkbox-input`} onChange={onChange} data-up-node-id={nodeId} />;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <input {...props} {...animAttrs} type="checkbox" name={name} required={required} className={`${className || ''} w-checkbox-input`} onChange={onChange} data-up-node-id={nodeId} />;
 }
 
 export function FormRadioWrapper({ className, children, ...rest }: FormWrapperProps) {
   const nodeId = useNodeID();
-  return <label {...rest} className={`${className || ''} w-radio`} data-up-node-id={nodeId}>{children}</label>;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <label {...props} {...animAttrs} className={`${className || ''} w-radio`} data-up-node-id={nodeId}>{children}</label>;
 }
 
-export interface FormRadioInputProps {
+export interface FormRadioInputProps extends AnimationProps {
   name?: string;
   value?: string;
   required?: boolean;
@@ -223,10 +276,12 @@ export interface FormRadioInputProps {
 
 export function FormRadioInput({ name, value, required, className, onChange, ...rest }: FormRadioInputProps) {
   const nodeId = useNodeID();
-  return <input {...rest} type="radio" name={name} value={value} required={required} className={`${className || ''} w-radio-input`} onChange={onChange} data-up-node-id={nodeId} />;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <input {...props} {...animAttrs} type="radio" name={name} value={value} required={required} className={`${className || ''} w-radio-input`} onChange={onChange} data-up-node-id={nodeId} />;
 }
 
-export interface FormMessageProps {
+export interface FormMessageProps extends AnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -236,24 +291,26 @@ export interface FormMessageProps {
 export function FormSuccessMessage({ text, className, children, ...rest }: FormMessageProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
-  // In static mode, hide success message (it only shows after form submission)
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   if (staticMode) {
-    return <div {...rest} className={`${className || ''} w-form-done`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
+    return <div {...props} {...animAttrs} className={`${className || ''} w-form-done`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
   }
-  return <div {...rest} className={`${className || ''} w-form-done`} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
+  return <div {...props} {...animAttrs} className={`${className || ''} w-form-done`} data-up-node-id={nodeId}>{children || text || 'Thank you! Your submission has been received!'}</div>;
 }
 
 export function FormErrorMessage({ text, className, children, ...rest }: FormMessageProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
-  // In static mode, hide error message (it only shows after form submission)
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   if (staticMode) {
-    return <div {...rest} className={`${className || ''} w-form-fail`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
+    return <div {...props} {...animAttrs} className={`${className || ''} w-form-fail`} style={{ display: 'none' }} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
   }
-  return <div {...rest} className={`${className || ''} w-form-fail`} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
+  return <div {...props} {...animAttrs} className={`${className || ''} w-form-fail`} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
 }
 
-export interface FormReCaptchaProps {
+export interface FormReCaptchaProps extends AnimationProps {
   siteKey?: string;
   className?: string;
   [key: string]: any;
@@ -261,5 +318,7 @@ export interface FormReCaptchaProps {
 
 export function FormReCaptcha({ siteKey, className, ...rest }: FormReCaptchaProps) {
   const nodeId = useNodeID();
-  return <div {...rest} className={className} data-sitekey={siteKey} data-up-node-id={nodeId} />;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
+  return <div {...props} {...animAttrs} className={className} data-sitekey={siteKey} data-up-node-id={nodeId} />;
 }
