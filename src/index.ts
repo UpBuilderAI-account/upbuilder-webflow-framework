@@ -56,3 +56,6 @@ export * from './symbol';
 
 // Lottie Animations
 export * from './lottie';
+
+// IX2 Runtime (Webflow animation engine for React preview)
+export * from './ix2-runtime';
