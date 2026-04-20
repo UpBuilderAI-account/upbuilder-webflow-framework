@@ -371,6 +371,21 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   },
 
   // -------------------------------------------------------------------------
+  // MARQUEE
+  // -------------------------------------------------------------------------
+  Marquee: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'marquee',
+  },
+  /** @deprecated Use Marquee directly with items as children */
+  MarqueeTrack: {
+    tag: 'div',
+    xscpType: 'Block',
+    feature: 'marquee',
+  },
+
+  // -------------------------------------------------------------------------
   // FORMS
   // -------------------------------------------------------------------------
   FormWrapper: {

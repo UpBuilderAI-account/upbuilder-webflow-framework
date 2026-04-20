@@ -283,7 +283,7 @@ export interface DropdownListProps extends AnimationProps {
 export function DropdownList({ className, children, ...rest }: DropdownListProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
-  const { isOpen } = useDropdownContext();
+  const { isOpen, isAccordion } = useDropdownContext();
   const animAttrs = extractAnimationAttrs(rest);
   const props = omitAnimationProps(rest);
 
@@ -291,14 +291,25 @@ export function DropdownList({ className, children, ...rest }: DropdownListProps
   const hasWebflowDropdownHandler = typeof window !== 'undefined' && !!(window as any).__UP_WEBFLOW_DROPDOWN_ACTIVE;
   const wOpenClass = hasWebflowDropdownHandler ? '' : (isOpen ? 'w--open' : '');
 
-  const staticStyles = staticMode ? { display: 'none' } as React.CSSProperties : undefined;
+  // Styles for initial render:
+  // - Static mode: hide completely
+  // - Accordion (closed): set height:0 to prevent flash before GSAP initializes
+  // - Regular dropdown: no inline styles needed (CSS handles it)
+  let inlineStyles: React.CSSProperties | undefined;
+  if (staticMode) {
+    inlineStyles = { display: 'none' };
+  } else if (isAccordion && !isOpen && hasWebflowDropdownHandler) {
+    // Accordion starts closed - set initial closed state to prevent flash
+    // GSAP will animate from here when opened
+    inlineStyles = { height: 0, opacity: 0, overflow: 'hidden' };
+  }
 
   return (
     <nav
       {...props}
       {...animAttrs}
       className={`${className || ''} w-dropdown-list ${wOpenClass}`}
-      style={staticStyles}
+      style={inlineStyles}
       role="menu"
       data-up-node-id={nodeId}
     >

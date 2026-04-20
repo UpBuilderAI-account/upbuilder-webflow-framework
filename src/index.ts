@@ -42,6 +42,9 @@ export * from './tabs';
 // Swiper Slider (full-featured slider using Swiper library)
 export * from './swiper';
 
+// Marquee (infinite scroll for logos, brands, etc.)
+export * from './marquee';
+
 // Forms
 export * from './forms';
 

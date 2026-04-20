@@ -311,6 +311,7 @@ export type ComponentFeature =
   | 'dropdown'
   | 'tabs'
   | 'swiper'
+  | 'marquee'
   | 'forms'
   | 'lightbox'
   | 'video'
@@ -323,6 +324,7 @@ export interface UsedFeatures {
   dropdown: boolean;
   tabs: boolean;
   swiper: boolean;
+  marquee: boolean;
   forms: boolean;
   lightbox: boolean;
   video: boolean;
@@ -337,6 +339,7 @@ export function createUsedFeatures(features: Partial<UsedFeatures> = {}): UsedFe
     dropdown: features.dropdown ?? false,
     tabs: features.tabs ?? false,
     swiper: features.swiper ?? false,
+    marquee: features.marquee ?? false,
     forms: features.forms ?? false,
     lightbox: features.lightbox ?? false,
     video: features.video ?? false,
