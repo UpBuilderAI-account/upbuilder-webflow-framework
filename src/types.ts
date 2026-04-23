@@ -185,18 +185,39 @@ export function convertLegacyStyle(legacy: {
 
 /**
  * Animation effect types for IX2 animations
+ * Synced with backendv2/src/generators/webflow/types.ts
  */
 export type AnimationEffect =
+  // Slide effects
   | 'slide-up'
   | 'slide-down'
   | 'slide-left'
   | 'slide-right'
+  // Basic effects
   | 'fade-in'
   | 'pop'
   | 'grow'
   | 'bounce'
   | 'shrink'
-  | 'flip';
+  | 'flip'
+  // Extended entrance effects
+  | 'grow-big'
+  | 'shrink-big'
+  | 'spin'
+  | 'spin-cw'
+  | 'spin-ccw'
+  | 'fly-up'
+  | 'fly-down'
+  | 'fly-left'
+  | 'fly-right'
+  | 'fly-top-left'
+  | 'fly-top-right'
+  | 'fly-bottom-left'
+  | 'fly-bottom-right'
+  | 'drop'
+  // Emphasis effects
+  | 'jiggle'
+  | 'pulse';
 
 /**
  * Animation trigger types
