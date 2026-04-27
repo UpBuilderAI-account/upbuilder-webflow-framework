@@ -359,11 +359,14 @@ export interface AccordionItemProps extends AnimationProps {
   className?: string;
   children?: React.ReactNode;
   defaultOpen?: boolean;
+  accordionPreset?: AccordionAnimationPreset;
+  accordionDuration?: number;
+  accordionEasing?: AccordionEasing;
   [key: string]: any;
 }
 
-export function AccordionItem({ className, children, ...rest }: AccordionItemProps) {
-  return <DropdownWrapper {...rest} className={className} accordion>{children}</DropdownWrapper>;
+export function AccordionItem({ className, children, defaultOpen, ...rest }: AccordionItemProps) {
+  return <DropdownWrapper {...rest} className={className} accordion startOpen={defaultOpen}>{children}</DropdownWrapper>;
 }
 
 export function AccordionTrigger({ className, children, ...rest }: DropdownToggleProps) {
