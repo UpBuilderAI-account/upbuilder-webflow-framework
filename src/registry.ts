@@ -386,6 +386,26 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
   },
 
   // -------------------------------------------------------------------------
+  // STICKY STACK LAYOUT
+  // -------------------------------------------------------------------------
+  StickyStackSection: {
+    tag: 'section',
+    xscpType: 'Section',
+  },
+  StickyStackIntro: {
+    tag: 'div',
+    xscpType: 'Block',
+  },
+  StickyStackCards: {
+    tag: 'div',
+    xscpType: 'Block',
+  },
+  StickyStackCard: {
+    tag: 'div',
+    xscpType: 'Block',
+  },
+
+  // -------------------------------------------------------------------------
   // FORMS
   // -------------------------------------------------------------------------
   FormWrapper: {

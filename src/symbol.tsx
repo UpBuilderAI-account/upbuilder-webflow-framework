@@ -2,36 +2,9 @@
  * Symbol components for Webflow Component/Symbol support
  */
 import React, { createContext, useContext } from 'react';
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 import { useNodeID } from './node-id';
-import type { AnimationEffect, AnimationEasing } from './types';
 
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
 
 // =============================================================================
 // TYPES
@@ -39,7 +12,7 @@ function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof A
 
 export type SymbolPropType = 'text' | 'rich-text' | 'image' | 'link' | 'video' | 'alt-text' | 'visibility';
 
-export interface SymbolProps extends AnimationProps {
+export interface SymbolProps extends UpAnimationProps {
   name: string;
   id?: string;
   className?: string;
@@ -151,7 +124,7 @@ function SymbolPropWrapper({ field, type, children }: SymbolPropWrapperProps) {
 // SYMBOL INSTANCE
 // =============================================================================
 
-export interface SymbolInstanceProps extends AnimationProps {
+export interface SymbolInstanceProps extends UpAnimationProps {
   symbolId: string;
   overrides?: Record<string, string>;
   className?: string;

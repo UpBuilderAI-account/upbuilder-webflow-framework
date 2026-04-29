@@ -4,11 +4,12 @@
 import React from 'react';
 import type { VideoSettings, AnimationEffect, AnimationEasing } from './types';
 import { useNodeID } from './node-id';
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 
 // Re-export animation types for convenience
-export type { AnimationEffect, AnimationEasing } from './types';
+export type { AnimationEffect, AnimationEasing, Ix3AnimationConfig, Ix3AnimationProps, Ix3Preset, Ix3Split, Ix3Trigger } from './types';
 
-export interface BlockProps {
+export interface BlockProps extends UpAnimationProps {
   className?: string;
   tag?: keyof JSX.IntrinsicElements;
   children?: React.ReactNode;
@@ -29,20 +30,16 @@ export interface BlockProps {
   [key: string]: any;
 }
 
-export function Block({ className, tag = 'div', children, animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...props }: BlockProps) {
+export function Block({ className, tag = 'div', children, ...rest }: BlockProps) {
   const nodeId = useNodeID();
   const Tag = tag as any;
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
     <Tag
       className={className}
-      data-animate={animate}
-      data-animate-hover={animateHover}
-      data-animate-click={animateClick}
-      data-animate-pageload={animatePageLoad}
-      data-animate-delay={animateDelay}
-      data-animate-duration={animateDuration}
-      data-animate-easing={animateEasing}
       data-up-node-id={nodeId}
+      {...animAttrs}
       {...props}
     >
       {children}
@@ -50,19 +47,15 @@ export function Block({ className, tag = 'div', children, animate, animateHover,
   );
 }
 
-export function Section({ className, children, animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...props }: BlockProps) {
+export function Section({ className, children, ...rest }: BlockProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(rest);
+  const props = omitAnimationProps(rest);
   return (
     <section
       className={className}
-      data-animate={animate}
-      data-animate-hover={animateHover}
-      data-animate-click={animateClick}
-      data-animate-pageload={animatePageLoad}
-      data-animate-delay={animateDelay}
-      data-animate-duration={animateDuration}
-      data-animate-easing={animateEasing}
       data-up-node-id={nodeId}
+      {...animAttrs}
       {...props}
     >
       {children}
@@ -72,30 +65,40 @@ export function Section({ className, children, animate, animateHover, animateCli
 
 export function BlockContainer({ className, children, ...props }: BlockProps) {
   const nodeId = useNodeID();
-  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function Container({ className, children, ...props }: BlockProps) {
   const nodeId = useNodeID();
-  return <div className={`${className || ''} w-container`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`${className || ''} w-container`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function Clearfix({ className, children, ...props }: BlockProps) {
   const nodeId = useNodeID();
-  return <div className={`${className || ''} w-clearfix`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`${className || ''} w-clearfix`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function InlineBlock({ className, children, ...props }: BlockProps) {
   const nodeId = useNodeID();
-  return <div className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function BlockLink({ className, children, ...props }: BlockProps) {
   const nodeId = useNodeID();
-  return <a className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...props}>{children}</a>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <a className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</a>;
 }
 
-export interface ImageProps {
+export interface ImageProps extends UpAnimationProps {
   src?: string;
   alt?: string;
   className?: string;
@@ -104,10 +107,12 @@ export interface ImageProps {
 
 export function Image({ src, alt = '', className, ...props }: ImageProps) {
   const nodeId = useNodeID();
-  return <img src={src} alt={alt} className={className} loading="lazy" data-up-node-id={nodeId} {...props} />;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <img src={src} alt={alt} className={className} loading="lazy" data-up-node-id={nodeId} {...animAttrs} {...rest} />;
 }
 
-export interface VideoProps {
+export interface VideoProps extends UpAnimationProps {
   videoUrl?: string;
   videoTitle?: string;
   className?: string;
@@ -116,6 +121,8 @@ export interface VideoProps {
 
 export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: VideoProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
   // Handle YouTube/Vimeo embeds
   let embedUrl = videoUrl || '';
   if (embedUrl.includes('youtube.com/watch')) {
@@ -127,7 +134,7 @@ export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: V
   }
 
   return (
-    <div className={`${className || ''} w-video`} data-up-node-id={nodeId} {...props}>
+    <div className={`${className || ''} w-video`} data-up-node-id={nodeId} {...animAttrs} {...rest}>
       <iframe
         src={embedUrl}
         title={videoTitle}
@@ -144,14 +151,16 @@ export function Video({ videoUrl, videoTitle = 'Video', className, ...props }: V
  * HamburgerIcon - Webflow's official nav-menu icon for hamburger menus
  * Uses CSS :before pseudo-element with Webflow's icon font
  */
-export function HamburgerIcon({ className, ...props }: { className?: string; [key: string]: any }) {
+export function HamburgerIcon({ className, ...props }: { className?: string; [key: string]: any } & UpAnimationProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
   return (
-    <div className={`w-icon-nav-menu ${className || ''}`} data-up-node-id={nodeId} {...props} />
+    <div className={`w-icon-nav-menu ${className || ''}`} data-up-node-id={nodeId} {...animAttrs} {...rest} />
   );
 }
 
-export interface HtmlEmbedProps {
+export interface HtmlEmbedProps extends UpAnimationProps {
   html?: string;
   className?: string;
   [key: string]: any;
@@ -159,14 +168,16 @@ export interface HtmlEmbedProps {
 
 export function HtmlEmbed({ html = '', className, ...props }: HtmlEmbedProps) {
   const nodeId = useNodeID();
-  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} data-up-node-id={nodeId} {...props} />;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} data-up-node-id={nodeId} {...animAttrs} {...rest} />;
 }
 
 export function LineBreak() {
   return <br />;
 }
 
-export interface ListProps {
+export interface ListProps extends UpAnimationProps {
   ordered?: boolean;
   className?: string;
   children?: React.ReactNode;
@@ -176,15 +187,19 @@ export interface ListProps {
 export function List({ ordered, className, children, ...props }: ListProps) {
   const nodeId = useNodeID();
   const Tag = ordered ? 'ol' : 'ul';
-  return <Tag className={className} data-up-node-id={nodeId} {...props}>{children}</Tag>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <Tag className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</Tag>;
 }
 
 export function ListUnstyled({ className, children, ...props }: ListProps) {
   const nodeId = useNodeID();
-  return <ul className={`${className || ''} w-list-unstyled`} data-up-node-id={nodeId} {...props}>{children}</ul>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <ul className={`${className || ''} w-list-unstyled`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</ul>;
 }
 
-export interface ListItemProps {
+export interface ListItemProps extends UpAnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -193,11 +208,13 @@ export interface ListItemProps {
 
 export function ListItem({ text, className, children, ...props }: ListItemProps) {
   const nodeId = useNodeID();
-  return <li className={className} data-up-node-id={nodeId} {...props}>{children || text}</li>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <li className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children || text}</li>;
 }
 
 // Layout components
-export interface LayoutProps {
+export interface LayoutProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -205,30 +222,40 @@ export interface LayoutProps {
 
 export function Row({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={`${className || ''} w-row`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`${className || ''} w-row`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function Column({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={`${className || ''} w-col`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`${className || ''} w-col`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function Grid({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function HFlex({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={`w-layout-hflex ${className || ''}`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`w-layout-hflex ${className || ''}`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function VFlex({ className, children, ...props }: LayoutProps) {
   const nodeId = useNodeID();
-  return <div className={`w-layout-vflex ${className || ''}`} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={`w-layout-vflex ${className || ''}`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
-export interface CodeBlockProps {
+export interface CodeBlockProps extends UpAnimationProps {
   code?: string;
   language?: string;
   className?: string;
@@ -237,15 +264,17 @@ export interface CodeBlockProps {
 
 export function CodeBlock({ code = '', language = '', className, ...props }: CodeBlockProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
   return (
-    <pre className={className} data-up-node-id={nodeId} {...props}>
+    <pre className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>
       <code className={language ? `language-${language}` : ''}>{code}</code>
     </pre>
   );
 }
 
 // Background video components
-export interface BackgroundVideoWrapperProps {
+export interface BackgroundVideoWrapperProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   videoUrl?: string;
@@ -263,10 +292,12 @@ const DEFAULT_VIDEO: Required<Omit<VideoSettings, 'poster'>> & { poster?: string
 
 export function BackgroundVideoWrapper({ className, children, videoUrl, settings, ...props }: BackgroundVideoWrapperProps) {
   const nodeId = useNodeID();
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
   const s = { ...DEFAULT_VIDEO, ...settings };
 
   return (
-    <div className={`${className || ''} w-background-video`} data-up-node-id={nodeId} {...props}>
+    <div className={`${className || ''} w-background-video`} data-up-node-id={nodeId} {...animAttrs} {...rest}>
       {videoUrl && (
         <video
           autoPlay={s.autoplay}
@@ -285,7 +316,7 @@ export function BackgroundVideoWrapper({ className, children, videoUrl, settings
   );
 }
 
-export interface BackgroundVideoButtonProps {
+export interface BackgroundVideoButtonProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -293,15 +324,21 @@ export interface BackgroundVideoButtonProps {
 
 export function BackgroundVideoPlayPauseButton({ className, children, ...props }: BackgroundVideoButtonProps) {
   const nodeId = useNodeID();
-  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function BackgroundVideoPlayPauseButtonPlaying({ className, children, ...props }: BackgroundVideoButtonProps) {
   const nodeId = useNodeID();
-  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
 export function BackgroundVideoPlayPauseButtonPaused({ className, children, ...props }: BackgroundVideoButtonProps) {
   const nodeId = useNodeID();
-  return <div className={className} data-up-node-id={nodeId} {...props}>{children}</div>;
+  const animAttrs = extractAnimationAttrs(props);
+  const rest = omitAnimationProps(props);
+  return <div className={className} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }

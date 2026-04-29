@@ -2,37 +2,10 @@
  * Navigation components - local implementations
  */
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { NavbarSettings, AnimationEffect, AnimationEasing } from './types';
+import type { NavbarSettings } from './types';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
-
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 
 // ============================================================================
 // NAVBAR CONTEXT
@@ -57,7 +30,7 @@ function useNavbarContext() {
 // NAVBAR COMPONENTS
 // ============================================================================
 
-export interface NavbarWrapperProps extends AnimationProps {
+export interface NavbarWrapperProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   collapse?: 'small' | 'medium' | 'all';
@@ -141,7 +114,7 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
   );
 }
 
-export interface NavbarContainerProps extends AnimationProps {
+export interface NavbarContainerProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -155,7 +128,7 @@ export function NavbarContainer({ className, children, ...rest }: NavbarContaine
   return <div {...props} {...animAttrs} className={className} data-up-node-id={nodeId}>{children}</div>;
 }
 
-export interface NavbarBrandProps extends AnimationProps {
+export interface NavbarBrandProps extends UpAnimationProps {
   href?: string;
   className?: string;
   children?: React.ReactNode;
@@ -173,7 +146,7 @@ export function NavbarBrand({ href = '/', className, children, ...rest }: Navbar
   );
 }
 
-export interface NavbarMenuProps extends AnimationProps {
+export interface NavbarMenuProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -199,7 +172,7 @@ export function NavbarMenu({ className, children, ...rest }: NavbarMenuProps) {
   );
 }
 
-export interface NavbarLinkProps extends AnimationProps {
+export interface NavbarLinkProps extends UpAnimationProps {
   text?: string;
   href?: string;
   isActive?: boolean;
@@ -229,7 +202,7 @@ export function NavbarLink({ text, href = '#', isActive, className, children, ..
   );
 }
 
-export interface NavbarButtonProps extends AnimationProps {
+export interface NavbarButtonProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;

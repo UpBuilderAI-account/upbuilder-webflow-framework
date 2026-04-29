@@ -2,13 +2,13 @@
  * Swiper Slider components - using Swiper library
  */
 import React, { useRef, useEffect, useCallback, Children, isValidElement } from 'react';
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 import { Swiper, SwiperSlide as SwiperSlideCore } from 'swiper/react';
 import type { Swiper as SwiperType } from 'swiper';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
 import { Navigation, Pagination, Scrollbar, Autoplay, EffectFade, EffectCube, EffectCoverflow, EffectFlip, EffectCards, EffectCreative, FreeMode } from 'swiper/modules';
 import type { SwiperOptions } from 'swiper/types';
-import type { AnimationEffect, AnimationEasing } from './types';
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -22,39 +22,12 @@ import 'swiper/css/effect-cards';
 import 'swiper/css/effect-creative';
 import 'swiper/css/free-mode';
 
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
-export interface SwiperSliderProps extends AnimationProps {
+export interface SwiperSliderProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   slidesPerView?: number | 'auto';
@@ -81,7 +54,7 @@ export interface SwiperSliderProps extends AnimationProps {
   [key: string]: any;
 }
 
-export interface SwiperSlideProps extends AnimationProps {
+export interface SwiperSlideProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -266,7 +239,7 @@ export function SwiperSlide({ className, children, ...rest }: SwiperSlideProps) 
 }
 SwiperSlide.displayName = 'SwiperSlide';
 
-export interface SwiperNavProps extends AnimationProps {
+export interface SwiperNavProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -326,7 +299,7 @@ export function SwiperNavNext({ className, children, ...rest }: SwiperNavProps) 
 }
 SwiperNavNext.displayName = 'SwiperNavNext';
 
-export interface SwiperPaginationProps extends AnimationProps {
+export interface SwiperPaginationProps extends UpAnimationProps {
   className?: string;
   [key: string]: any;
 }

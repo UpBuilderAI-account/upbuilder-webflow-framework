@@ -2,37 +2,11 @@
  * Dropdown components - local implementations
  */
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
-import type { AnimationEffect, AnimationEasing } from './types';
+import type { AnimationEffect } from './types';
 
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
 
 // IX2 Accordion animation preset types
 export type AccordionAnimationPreset =
@@ -124,7 +98,7 @@ function useDropdownContext() {
 // DROPDOWN
 // ============================================================================
 
-export interface DropdownWrapperProps extends DropdownProps, AnimationProps {
+export interface DropdownWrapperProps extends DropdownProps, UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   accordion?: boolean;
@@ -238,7 +212,7 @@ export function DropdownWrapper({
   );
 }
 
-export interface DropdownToggleProps extends AnimationProps {
+export interface DropdownToggleProps extends UpAnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -274,7 +248,7 @@ export function DropdownToggle({ text, className, children, ...rest }: DropdownT
   );
 }
 
-export interface DropdownListProps extends AnimationProps {
+export interface DropdownListProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -293,14 +267,14 @@ export function DropdownList({ className, children, ...rest }: DropdownListProps
 
   // Styles for initial render:
   // - Static mode: hide completely
-  // - Accordion (closed): set height:0 to prevent flash before GSAP initializes
+  // - Accordion (closed): set height:0 to prevent flash before preview handler initializes
   // - Regular dropdown: no inline styles needed (CSS handles it)
   let inlineStyles: React.CSSProperties | undefined;
   if (staticMode) {
     inlineStyles = { display: 'none' };
   } else if (isAccordion && !isOpen && hasWebflowDropdownHandler) {
     // Accordion starts closed - set initial closed state to prevent flash
-    // GSAP will animate from here when opened
+    // The preview handler animates from here when opened
     inlineStyles = { height: 0, opacity: 0, overflow: 'hidden' };
   }
 
@@ -318,7 +292,7 @@ export function DropdownList({ className, children, ...rest }: DropdownListProps
   );
 }
 
-export interface DropdownLinkProps extends AnimationProps {
+export interface DropdownLinkProps extends UpAnimationProps {
   text?: string;
   href?: string;
   className?: string;
@@ -355,7 +329,7 @@ export function DropdownLink({ text, href = '#', className, children, ...rest }:
 // ACCORDION
 // ============================================================================
 
-export interface AccordionItemProps extends AnimationProps {
+export interface AccordionItemProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   defaultOpen?: boolean;
@@ -381,7 +355,7 @@ export function AccordionContent({ className, children, ...rest }: DropdownListP
 // DROPDOWN ICON
 // ============================================================================
 
-export interface DropdownIconProps extends AnimationProps {
+export interface DropdownIconProps extends UpAnimationProps {
   className?: string;
   src?: string;
   alt?: string;

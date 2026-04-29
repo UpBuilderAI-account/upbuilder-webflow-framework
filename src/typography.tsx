@@ -3,35 +3,7 @@
  */
 import React from 'react';
 import { useNodeID } from './node-id';
-import type { AnimationEffect, AnimationEasing } from './types';
-
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 
 /**
  * Render text with newlines as <br /> elements
@@ -49,7 +21,7 @@ function renderTextWithBreaks(text: string | undefined): React.ReactNode {
   ));
 }
 
-export interface HeadingProps extends AnimationProps {
+export interface HeadingProps extends UpAnimationProps {
   as?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
   text?: string;
   richText?: boolean;
@@ -66,7 +38,7 @@ export function Heading({ as = 'h2', text, richText, className, children, ...res
   return <Tag className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</Tag>;
 }
 
-export interface TextProps extends AnimationProps {
+export interface TextProps extends UpAnimationProps {
   text?: string;
   richText?: boolean;
   className?: string;
@@ -95,7 +67,7 @@ export function Blockquote({ text, className, children, ...rest }: TextProps) {
   return <blockquote className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</blockquote>;
 }
 
-export interface RichTextProps extends AnimationProps {
+export interface RichTextProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -157,7 +129,7 @@ export function InlineCode({ text, className, children, ...rest }: TextProps) {
   return <code className={className} data-up-node-id={nodeId} {...animAttrs} {...props}>{children || renderTextWithBreaks(text)}</code>;
 }
 
-export interface LinkProps extends AnimationProps {
+export interface LinkProps extends UpAnimationProps {
   href?: string;
   text?: string;
   target?: '_blank' | '_self' | '_parent' | '_top';
@@ -199,7 +171,7 @@ export function TextLink({ href = '#', text, target, className, children, ...res
   );
 }
 
-export interface ButtonProps extends AnimationProps {
+export interface ButtonProps extends UpAnimationProps {
   text?: string;
   type?: 'button' | 'submit' | 'reset';
   className?: string;

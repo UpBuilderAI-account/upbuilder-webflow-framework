@@ -2,37 +2,10 @@
  * Form components - local implementations
  */
 import React from 'react';
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
-import type { AnimationEffect, AnimationEasing } from './types';
 
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
 
 // Form configuration props
 export interface FormProps {
@@ -83,7 +56,7 @@ interface FormLabelPropsBase {
   htmlFor?: string;
 }
 
-export interface FormWrapperProps extends AnimationProps {
+export interface FormWrapperProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -96,7 +69,7 @@ export function FormWrapper({ className, children, ...rest }: FormWrapperProps) 
   return <div {...props} {...animAttrs} className={`${className || ''} w-form`} data-up-node-id={nodeId}>{children}</div>;
 }
 
-export interface FormFormProps extends FormProps, AnimationProps {
+export interface FormFormProps extends FormProps, UpAnimationProps {
   action?: string;
   className?: string;
   children?: React.ReactNode;
@@ -123,7 +96,7 @@ export function FormForm({ name, action, method = 'post', className, children, o
   );
 }
 
-export interface FormLabelProps extends FormLabelPropsBase, AnimationProps {
+export interface FormLabelProps extends FormLabelPropsBase, UpAnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -144,7 +117,7 @@ export function FormInlineLabel({ text, htmlFor, className, children, ...rest }:
   return <label {...props} {...animAttrs} htmlFor={htmlFor} className={className} style={{ display: 'inline' }} data-up-node-id={nodeId}>{children || text}</label>;
 }
 
-export interface FormTextInputComponentProps extends FormInputProps, AnimationProps {
+export interface FormTextInputComponentProps extends FormInputProps, UpAnimationProps {
   value?: string;
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -171,7 +144,7 @@ export function FormTextInput({ name, type = 'text', placeholder, required, valu
   );
 }
 
-export interface FormTextareaComponentProps extends FormTextareaPropsBase, AnimationProps {
+export interface FormTextareaComponentProps extends FormTextareaPropsBase, UpAnimationProps {
   value?: string;
   className?: string;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -197,7 +170,7 @@ export function FormTextarea({ name, placeholder, required, value, className, on
   );
 }
 
-export interface FormSelectComponentProps extends FormSelectPropsBase, AnimationProps {
+export interface FormSelectComponentProps extends FormSelectPropsBase, UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -217,7 +190,7 @@ export function FormSelect({ name, required, multiple, options, className, child
   );
 }
 
-export interface FormButtonProps extends AnimationProps {
+export interface FormButtonProps extends UpAnimationProps {
   text?: string;
   type?: 'button' | 'submit' | 'reset';
   className?: string;
@@ -243,7 +216,7 @@ export function FormCheckboxWrapper({ className, children, ...rest }: FormWrappe
   return <label {...props} {...animAttrs} className={`${className || ''} w-checkbox`} data-up-node-id={nodeId}>{children}</label>;
 }
 
-export interface FormCheckboxInputProps extends AnimationProps {
+export interface FormCheckboxInputProps extends UpAnimationProps {
   name?: string;
   required?: boolean;
   className?: string;
@@ -265,7 +238,7 @@ export function FormRadioWrapper({ className, children, ...rest }: FormWrapperPr
   return <label {...props} {...animAttrs} className={`${className || ''} w-radio`} data-up-node-id={nodeId}>{children}</label>;
 }
 
-export interface FormRadioInputProps extends AnimationProps {
+export interface FormRadioInputProps extends UpAnimationProps {
   name?: string;
   value?: string;
   required?: boolean;
@@ -281,7 +254,7 @@ export function FormRadioInput({ name, value, required, className, onChange, ...
   return <input {...props} {...animAttrs} type="radio" name={name} value={value} required={required} className={`${className || ''} w-radio-input`} onChange={onChange} data-up-node-id={nodeId} />;
 }
 
-export interface FormMessageProps extends AnimationProps {
+export interface FormMessageProps extends UpAnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -310,7 +283,7 @@ export function FormErrorMessage({ text, className, children, ...rest }: FormMes
   return <div {...props} {...animAttrs} className={`${className || ''} w-form-fail`} data-up-node-id={nodeId}>{children || text || 'Oops! Something went wrong.'}</div>;
 }
 
-export interface FormReCaptchaProps extends AnimationProps {
+export interface FormReCaptchaProps extends UpAnimationProps {
   siteKey?: string;
   className?: string;
   [key: string]: any;

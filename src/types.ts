@@ -225,9 +225,96 @@ export type AnimationEffect =
 export type AnimationTrigger = 'scroll' | 'hover' | 'click' | 'pageLoad' | 'dropdownOpen' | 'dropdownClose';
 
 /**
- * Animation easing types (maps to GSAP easing)
+ * Animation easing types
  */
 export type AnimationEasing = 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
+
+/**
+ * GSAP/IX3-style animation preset names.
+ * These are separate from IX2 `animate*` props and should not export as IX2.
+ */
+export type Ix3Preset =
+  | 'fade-in'
+  | 'fade-up'
+  | 'fade-down'
+  | 'fade-left'
+  | 'fade-right'
+  | 'scale-in'
+  | 'blur-in'
+  | 'text-rise-chars'
+  | 'text-rise-words'
+  | 'text-fade-chars'
+  | 'text-fade-words'
+  | 'text-opacity-chars'
+  | 'flip-x'
+  | 'video-scale-in'
+  | 'cover-slide-down'
+  | 'navbar-drop'
+  | 'parallax-y'
+  | 'image-zoom-scroll'
+  | 'hover-lift'
+  | 'hover-scale'
+  | 'marquee';
+
+export type Ix3Trigger = 'scroll' | 'pageLoad' | 'hover' | 'click';
+export type Ix3Split = 'chars' | 'words' | 'lines';
+
+export type Ix3Ease = string | number;
+export type Ix3TweenValue = string | number | boolean | null | Array<string | number | boolean | null>;
+export type Ix3TweenVars = Record<string, Ix3TweenValue>;
+
+export interface Ix3TimelineStep {
+  /** Optional CSS selector scoped to the component root. Defaults to the component root. */
+  target?: string;
+  /** Optional split target for text timelines. */
+  split?: Ix3Split;
+  from?: Ix3TweenVars;
+  to?: Ix3TweenVars;
+  duration?: number;
+  delay?: number;
+  /** GSAP timeline position, e.g. 0, 0.2, '<', '+=0.1'. */
+  position?: number | string;
+  repeat?: number;
+  yoyo?: boolean;
+  stagger?: number | { amount?: number; each?: number; from?: string | number };
+  ease?: Ix3Ease;
+}
+
+export interface Ix3AnimationConfig {
+  preset?: Ix3Preset;
+  trigger?: Ix3Trigger;
+  split?: Ix3Split;
+  scrub?: boolean | number;
+  stagger?: number;
+  start?: string;
+  end?: string;
+  once?: boolean;
+  from?: Ix3TweenVars;
+  to?: Ix3TweenVars;
+  duration?: number;
+  delay?: number;
+  ease?: Ix3Ease;
+  repeat?: number;
+  yoyo?: boolean;
+  pauseOnHover?: boolean;
+  target?: string;
+  timeline?: Ix3TimelineStep[];
+}
+
+export interface Ix3AnimationProps {
+  /** GSAP/IX3-style preset or full config. Does not generate IX2. */
+  ix3?: Ix3Preset | Ix3AnimationConfig;
+  ix3Trigger?: Ix3Trigger;
+  ix3Split?: Ix3Split;
+  ix3Scrub?: boolean | number;
+  ix3Stagger?: number;
+  ix3Start?: string;
+  ix3End?: string;
+  ix3Once?: boolean;
+  ix3Duration?: number;
+  ix3Delay?: number;
+  ix3Ease?: Ix3Ease;
+}
 
 // =============================================================================
 // COMPONENT SETTINGS

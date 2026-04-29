@@ -21,6 +21,9 @@ export * from './registry';
 // Node ID system for preview/editor sync
 export * from './node-id';
 
+// Animation prop helpers and shared animation prop types
+export * from './animations';
+
 // Static mode system for disabling interactivity in canvas preview
 export * from './static-mode';
 
@@ -45,6 +48,9 @@ export * from './swiper';
 // Marquee (infinite scroll for logos, brands, etc.)
 export * from './marquee';
 
+// Sticky stack layout primitive
+export * from './sticky-stack';
+
 // Forms
 export * from './forms';
 
@@ -62,3 +68,6 @@ export * from './lottie';
 
 // IX2 Runtime (Webflow animation engine for React preview)
 export * from './ix2-runtime';
+
+// Placeholder for scaffold stubs (inline styles only, no CSS interference)
+export * from './placeholder';

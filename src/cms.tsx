@@ -2,37 +2,10 @@
  * CMS/Dynamic components for Webflow Collection Lists
  */
 import React, { createContext, useContext } from 'react';
+import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
 import { useNodeID } from './node-id';
 import { useCmsItems, useCmsFieldValue, useCmsCurrentItem, CmsItemProvider } from './cms-context';
-import type { AnimationEffect, AnimationEasing } from './types';
 
-// Animation props interface
-interface AnimationProps {
-  animate?: AnimationEffect;
-  animateHover?: AnimationEffect;
-  animateClick?: AnimationEffect;
-  animatePageLoad?: AnimationEffect;
-  animateDelay?: number;
-  animateDuration?: number;
-  animateEasing?: AnimationEasing;
-}
-
-function extractAnimationAttrs(props: AnimationProps): Record<string, any> {
-  const attrs: Record<string, any> = {};
-  if (props.animate) attrs['data-animate'] = props.animate;
-  if (props.animateHover) attrs['data-animate-hover'] = props.animateHover;
-  if (props.animateClick) attrs['data-animate-click'] = props.animateClick;
-  if (props.animatePageLoad) attrs['data-animate-pageload'] = props.animatePageLoad;
-  if (props.animateDelay !== undefined) attrs['data-animate-delay'] = props.animateDelay;
-  if (props.animateDuration !== undefined) attrs['data-animate-duration'] = props.animateDuration;
-  if (props.animateEasing) attrs['data-animate-easing'] = props.animateEasing;
-  return attrs;
-}
-
-function omitAnimationProps<T extends AnimationProps>(props: T): Omit<T, keyof AnimationProps> {
-  const { animate, animateHover, animateClick, animatePageLoad, animateDelay, animateDuration, animateEasing, ...rest } = props;
-  return rest as Omit<T, keyof AnimationProps>;
-}
 
 // =============================================================================
 // INTERNAL CONTEXT
@@ -64,7 +37,7 @@ export interface SortConfig { field: string; order: 'asc' | 'desc'; }
 // DYNAMO WRAPPER
 // =============================================================================
 
-export interface DynamoWrapperProps extends AnimationProps {
+export interface DynamoWrapperProps extends UpAnimationProps {
   collection?: string;
   dynCollection?: string;
   limit?: number;
@@ -99,7 +72,7 @@ export function DynamoWrapper({ collection, dynCollection, limit, dynLimit, offs
 // DYNAMO LIST
 // =============================================================================
 
-export interface DynamoListProps extends AnimationProps {
+export interface DynamoListProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -131,7 +104,7 @@ export function DynamoList({ className, children, ...rest }: DynamoListProps) {
 // DYNAMO ITEM
 // =============================================================================
 
-export interface DynamoItemProps extends AnimationProps {
+export interface DynamoItemProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -148,7 +121,7 @@ export function DynamoItem({ className, children, ...rest }: DynamoItemProps) {
 // DYNAMO EMPTY
 // =============================================================================
 
-export interface DynamoEmptyProps extends AnimationProps {
+export interface DynamoEmptyProps extends UpAnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -169,7 +142,7 @@ export function DynamoEmpty({ text, className, children, ...rest }: DynamoEmptyP
 // FIELD BINDING COMPONENTS
 // =============================================================================
 
-export interface DynTextProps extends AnimationProps {
+export interface DynTextProps extends UpAnimationProps {
   field: string;
   tag?: 'span' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'div' | 'label';
   fallback?: string;
@@ -188,7 +161,7 @@ export function DynText({ field, tag = 'span', fallback, className, children, ..
   return <Tag {...props} {...animAttrs} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="PlainText">{displayValue}</Tag>;
 }
 
-export interface DynRichTextProps extends AnimationProps {
+export interface DynRichTextProps extends UpAnimationProps {
   field: string;
   className?: string;
   children?: React.ReactNode;
@@ -207,7 +180,7 @@ export function DynRichText({ field, className, children, ...rest }: DynRichText
   return <div {...props} {...animAttrs} className={`${className || ''} w-richtext`.trim()} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="RichText">{displayValue}</div>;
 }
 
-export interface DynImageProps extends AnimationProps {
+export interface DynImageProps extends UpAnimationProps {
   field: string;
   alt?: string;
   loading?: 'lazy' | 'eager';
@@ -225,7 +198,7 @@ export function DynImage({ field, alt, loading = 'lazy', className, ...rest }: D
   return <img {...props} {...animAttrs} className={className} src={src} alt={imgAlt} loading={loading} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Image" />;
 }
 
-export interface DynVideoProps extends AnimationProps {
+export interface DynVideoProps extends UpAnimationProps {
   field: string;
   className?: string;
   [key: string]: any;
@@ -244,7 +217,7 @@ export function DynVideo({ field, className, ...rest }: DynVideoProps) {
   );
 }
 
-export interface DynLinkProps extends AnimationProps {
+export interface DynLinkProps extends UpAnimationProps {
   field: string;
   newTab?: boolean;
   className?: string;
@@ -262,7 +235,7 @@ export function DynLink({ field, newTab, className, children, ...rest }: DynLink
   return <a {...props} {...animAttrs} href={href} className={className} target={newTab ? '_blank' : undefined} rel={newTab ? 'noopener noreferrer' : undefined} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Link">{displayText}</a>;
 }
 
-export interface DynSlugLinkProps extends AnimationProps {
+export interface DynSlugLinkProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -279,7 +252,7 @@ export function DynSlugLink({ className, children, ...rest }: DynSlugLinkProps) 
   return <a {...props} {...animAttrs} href={href} className={className} data-up-node-id={nodeId} data-dyn-bind="slug" data-dyn-type="FullSlug">{children}</a>;
 }
 
-export interface DynEmailProps extends AnimationProps {
+export interface DynEmailProps extends UpAnimationProps {
   field: string;
   className?: string;
   children?: React.ReactNode;
@@ -297,7 +270,7 @@ export function DynEmail({ field, className, children, ...rest }: DynEmailProps)
   return <a {...props} {...animAttrs} href={href} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Email">{displayText}</a>;
 }
 
-export interface DynPhoneProps extends AnimationProps {
+export interface DynPhoneProps extends UpAnimationProps {
   field: string;
   className?: string;
   children?: React.ReactNode;
@@ -315,7 +288,7 @@ export function DynPhone({ field, className, children, ...rest }: DynPhoneProps)
   return <a {...props} {...animAttrs} href={href} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Phone">{displayText}</a>;
 }
 
-export interface DynFileProps extends AnimationProps {
+export interface DynFileProps extends UpAnimationProps {
   field: string;
   text?: string;
   className?: string;
@@ -333,7 +306,7 @@ export function DynFile({ field, text, className, children, ...rest }: DynFilePr
   return <a {...props} {...animAttrs} href={href} className={className} download={fileName} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="File">{children || text || fileName || 'Download'}</a>;
 }
 
-export interface DynDateProps extends AnimationProps {
+export interface DynDateProps extends UpAnimationProps {
   field: string;
   format?: 'short' | 'medium' | 'long' | 'full' | 'relative';
   customFormat?: string;
@@ -364,7 +337,7 @@ export function DynDate({ field, format = 'medium', customFormat, className, ...
   return <time {...props} {...animAttrs} className={className} dateTime={value || undefined} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="DateTime" data-dyn-format={customFormat || format}>{displayValue}</time>;
 }
 
-export interface DynNumberProps extends AnimationProps {
+export interface DynNumberProps extends UpAnimationProps {
   field: string;
   prefix?: string;
   suffix?: string;
@@ -386,7 +359,7 @@ export function DynNumber({ field, prefix, suffix, decimals, className, ...rest 
   return <span {...props} {...animAttrs} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Number" data-dyn-prefix={prefix} data-dyn-suffix={suffix} data-dyn-decimals={decimals}>{prefix || ''}{displayValue}{suffix || ''}</span>;
 }
 
-export interface DynColorProps extends AnimationProps {
+export interface DynColorProps extends UpAnimationProps {
   field: string;
   apply?: 'background' | 'text' | 'border';
   className?: string;
@@ -408,7 +381,7 @@ export function DynColor({ field, apply = 'background', className, children, ...
   return <div {...props} {...animAttrs} className={className} style={{ ...rest.style, ...colorStyle }} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Color" data-dyn-apply={apply}>{children}</div>;
 }
 
-export interface DynOptionProps extends AnimationProps {
+export interface DynOptionProps extends UpAnimationProps {
   field: string;
   className?: string;
   children?: React.ReactNode;
@@ -424,7 +397,7 @@ export function DynOption({ field, className, children, ...rest }: DynOptionProp
   return <span {...props} {...animAttrs} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Option">{displayValue}</span>;
 }
 
-export interface DynSwitchProps extends AnimationProps {
+export interface DynSwitchProps extends UpAnimationProps {
   field: string;
   showWhen?: boolean;
   className?: string;
@@ -444,7 +417,7 @@ export function DynSwitch({ field, showWhen = true, className, children, ...rest
   return <div {...props} {...animAttrs} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Switch" data-dyn-show-when={showWhen}>{children}</div>;
 }
 
-export interface DynReferenceProps extends AnimationProps {
+export interface DynReferenceProps extends UpAnimationProps {
   field: string;
   className?: string;
   children?: React.ReactNode;
@@ -458,7 +431,7 @@ export function DynReference({ field, className, children, ...rest }: DynReferen
   return <div {...props} {...animAttrs} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="Reference">{children}</div>;
 }
 
-export interface DynMultiReferenceProps extends AnimationProps {
+export interface DynMultiReferenceProps extends UpAnimationProps {
   field: string;
   limit?: number;
   className?: string;
@@ -473,7 +446,7 @@ export function DynMultiReference({ field, limit, className, children, ...rest }
   return <div {...props} {...animAttrs} className={className} data-up-node-id={nodeId} data-dyn-bind={field} data-dyn-type="MultiReference" data-dyn-limit={limit}><div className="w-dyn-items">{children}</div></div>;
 }
 
-export interface DynMultiImageProps extends AnimationProps {
+export interface DynMultiImageProps extends UpAnimationProps {
   field: string;
   limit?: number;
   className?: string;
@@ -492,7 +465,7 @@ export function DynMultiImage({ field, limit, className, children, ...rest }: Dy
 // PAGINATION
 // =============================================================================
 
-export interface DynPaginationProps extends AnimationProps {
+export interface DynPaginationProps extends UpAnimationProps {
   prevText?: string;
   nextText?: string;
   showNumbers?: boolean;
@@ -517,7 +490,7 @@ export function DynPagination({ prevText = 'Previous', nextText = 'Next', showNu
 // SEARCH COMPONENTS
 // =============================================================================
 
-export interface SearchFormProps extends AnimationProps {
+export interface SearchFormProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   [key: string]: any;
@@ -530,7 +503,7 @@ export function SearchForm({ className, children, ...rest }: SearchFormProps) {
   return <form {...props} {...animAttrs} className={className} role="search" data-up-node-id={nodeId}>{children}</form>;
 }
 
-export interface SearchInputProps extends AnimationProps {
+export interface SearchInputProps extends UpAnimationProps {
   name?: string;
   placeholder?: string;
   className?: string;
@@ -544,7 +517,7 @@ export function SearchInput({ name = 'query', placeholder = 'Search...', classNa
   return <input {...props} {...animAttrs} type="search" name={name} placeholder={placeholder} className={className} data-up-node-id={nodeId} />;
 }
 
-export interface SearchButtonProps extends AnimationProps {
+export interface SearchButtonProps extends UpAnimationProps {
   text?: string;
   className?: string;
   children?: React.ReactNode;
@@ -571,7 +544,7 @@ export function SearchResults({ className, children, ...rest }: DynamoListProps)
 
 export interface LightboxItem { url: string; type?: 'image' | 'video'; caption?: string; thumbnail?: string; }
 
-export interface LightboxWrapperProps extends AnimationProps {
+export interface LightboxWrapperProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   group?: string;
@@ -587,7 +560,7 @@ export function LightboxWrapper({ className, children, group, items, searchExclu
   return <a {...props} {...animAttrs} href="#" className={`${className || ''} w-lightbox`.trim()} data-lightbox-group={group} onClick={(e) => e.preventDefault()} data-up-node-id={nodeId}>{children}</a>;
 }
 
-export interface LightboxLinkProps extends AnimationProps {
+export interface LightboxLinkProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
   href?: string;
@@ -605,7 +578,7 @@ export function LightboxLink({ className, children, href = '#', ...rest }: Light
 // MAP WIDGET
 // =============================================================================
 
-export interface MapWidgetProps extends AnimationProps {
+export interface MapWidgetProps extends UpAnimationProps {
   apiKey?: string;
   address?: string;
   className?: string;
