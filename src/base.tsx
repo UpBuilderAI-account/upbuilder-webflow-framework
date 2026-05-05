@@ -84,13 +84,6 @@ export function Clearfix({ className, children, ...props }: BlockProps) {
   return <div className={`${className || ''} w-clearfix`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
 }
 
-export function InlineBlock({ className, children, ...props }: BlockProps) {
-  const nodeId = useNodeID();
-  const animAttrs = extractAnimationAttrs(props);
-  const rest = omitAnimationProps(props);
-  return <div className={`${className || ''} w-inline-block`} data-up-node-id={nodeId} {...animAttrs} {...rest}>{children}</div>;
-}
-
 export function BlockLink({ className, children, ...props }: BlockProps) {
   const nodeId = useNodeID();
   const animAttrs = extractAnimationAttrs(props);

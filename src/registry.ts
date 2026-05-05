@@ -61,10 +61,6 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
     tag: 'div',
     webflowClasses: ['w-clearfix'],
   },
-  InlineBlock: {
-    tag: 'div',
-    webflowClasses: ['w-inline-block'],
-  },
   BlockLink: {
     tag: 'a',
     webflowClasses: ['w-inline-block'],
