@@ -72,6 +72,8 @@ export interface DropdownProps {
   animateClose?: AnimationEffect;
   /** IX2 transition config for accordion mode */
   transition?: AccordionTransitionConfig;
+  /** IX2 transition config for regular/navbar dropdown open/close motion */
+  dropdownTransition?: AccordionTransitionConfig;
 }
 
 // ============================================================================
@@ -109,6 +111,12 @@ export interface DropdownWrapperProps extends DropdownProps, UpAnimationProps {
   accordionDuration?: number;
   /** Shorthand: easing for open/close */
   accordionEasing?: AccordionEasing;
+  /** Shorthand: regular/navbar dropdown animation preset */
+  dropdownAnimationPreset?: AccordionAnimationPreset;
+  /** Shorthand: regular/navbar dropdown open duration in ms */
+  dropdownAnimationDuration?: number;
+  /** Shorthand: regular/navbar dropdown easing */
+  dropdownAnimationEasing?: AccordionEasing;
   [key: string]: any;
 }
 
@@ -122,9 +130,13 @@ export function DropdownWrapper({
   animateOpen,
   animateClose,
   transition,
+  dropdownTransition,
   accordionPreset,
   accordionDuration,
   accordionEasing,
+  dropdownAnimationPreset,
+  dropdownAnimationDuration,
+  dropdownAnimationEasing,
   ...rest
 }: DropdownWrapperProps) {
   const nodeId = useNodeID();
@@ -183,6 +195,16 @@ export function DropdownWrapper({
     ? JSON.stringify(effectiveTransition)
     : undefined;
 
+  const effectiveDropdownTransition: AccordionTransitionConfig = {
+    ...dropdownTransition,
+    ...(dropdownAnimationPreset && { preset: dropdownAnimationPreset }),
+    ...(dropdownAnimationDuration && { openDuration: dropdownAnimationDuration, closeDuration: Math.round(dropdownAnimationDuration * 0.75) }),
+    ...(dropdownAnimationEasing && { openEasing: dropdownAnimationEasing, closeEasing: dropdownAnimationEasing }),
+  };
+  const dropdownTransitionAttr = !accordion && Object.keys(effectiveDropdownTransition).length > 0
+    ? JSON.stringify(effectiveDropdownTransition)
+    : undefined;
+
   // Check if Webflow dropdown handler is active - if so, don't manage .w--open class
   // The script will handle click events and class toggling
   const hasWebflowDropdownHandler = typeof window !== 'undefined' && !!(window as any).__UP_WEBFLOW_DROPDOWN_ACTIVE;
@@ -204,6 +226,10 @@ export function DropdownWrapper({
         data-animate-close={animateClose}
         data-accordion={accordion ? 'true' : undefined}
         data-accordion-transition={transitionAttr}
+        data-dropdown-animation-preset={dropdownAnimationPreset}
+        data-dropdown-animation-duration={dropdownAnimationDuration}
+        data-dropdown-animation-easing={dropdownAnimationEasing}
+        data-dropdown-transition={dropdownTransitionAttr}
         data-up-node-id={nodeId}
       >
         {children}

@@ -224,7 +224,6 @@ export const COMPONENT_REGISTRY: Record<string, ComponentDefinition> = {
       'Must have background-color (use #00000000 for transparent)',
       'Never use overflow: hidden',
     ],
-    requiredChildren: ['NavbarMenu', 'NavbarButton'],
   },
   NavbarBrand: {
     tag: 'a',

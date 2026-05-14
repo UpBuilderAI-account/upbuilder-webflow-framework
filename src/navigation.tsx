@@ -6,6 +6,7 @@ import type { NavbarSettings } from './types';
 import { useNodeID } from './node-id';
 import { useStaticMode } from './static-mode';
 import { extractAnimationAttrs, omitAnimationProps, type UpAnimationProps } from './animations';
+import type { AccordionAnimationPreset, AccordionEasing } from './dropdown';
 
 // ============================================================================
 // NAVBAR CONTEXT
@@ -35,6 +36,12 @@ export interface NavbarWrapperProps extends UpAnimationProps {
   children?: React.ReactNode;
   collapse?: 'small' | 'medium' | 'all';
   settings?: NavbarSettings;
+  /** Webflow IX2 preset for collapsed NavbarMenu open/close motion. */
+  menuAnimationPreset?: AccordionAnimationPreset;
+  /** Open duration in ms. Close duration is derived unless menuAnimationCloseDuration is set in settings later. */
+  menuAnimationDuration?: number;
+  /** Easing for generated NavbarMenu IX2 motion. */
+  menuAnimationEasing?: AccordionEasing;
   [key: string]: any;
 }
 
@@ -46,14 +53,29 @@ const DEFAULT_NAVBAR: Required<NavbarSettings> = {
   dropdownDelay: 300,
   docHeight: false,
   noScroll: false,
+  menuAnimationPreset: 'slide-fade',
+  menuAnimationDuration: 320,
+  menuAnimationEasing: 'outQuad',
 };
 
-export function NavbarWrapper({ className, children, collapse, settings, ...rest }: NavbarWrapperProps) {
+export function NavbarWrapper({
+  className,
+  children,
+  collapse,
+  settings,
+  menuAnimationPreset,
+  menuAnimationDuration,
+  menuAnimationEasing,
+  ...rest
+}: NavbarWrapperProps) {
   const nodeId = useNodeID();
   const staticMode = useStaticMode();
   const animAttrs = extractAnimationAttrs(rest);
   const props = omitAnimationProps(rest);
   const s = { ...DEFAULT_NAVBAR, ...settings };
+  const resolvedMenuAnimationPreset = menuAnimationPreset ?? s.menuAnimationPreset;
+  const resolvedMenuAnimationDuration = menuAnimationDuration ?? s.menuAnimationDuration;
+  const resolvedMenuAnimationEasing = menuAnimationEasing ?? s.menuAnimationEasing;
   const collapseBreakpoint = s.collapseAt === 'none' ? 'none' : (collapse || s.collapseAt);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -97,16 +119,15 @@ export function NavbarWrapper({ className, children, collapse, settings, ...rest
         data-collapse={collapseBreakpoint}
         data-animation={s.animation}
         data-duration={s.animationDuration}
+        data-menu-animation-preset={resolvedMenuAnimationPreset}
+        data-menu-animation-duration={resolvedMenuAnimationDuration}
+        data-menu-animation-easing={resolvedMenuAnimationEasing}
         role="banner"
       >
         {children}
         {effectiveMenuOpen && (
           <div
             className="w-nav-overlay w--open"
-            style={{
-              display: 'block',
-              transition: `opacity ${s.animationDuration}ms ease`,
-            }}
           />
         )}
       </div>
@@ -162,7 +183,7 @@ export function NavbarMenu({ className, children, ...rest }: NavbarMenuProps) {
     <nav
       {...props}
       {...animAttrs}
-      className={`${className || ''} w-nav-menu ${isMenuOpen ? 'w--open' : ''}`}
+      className={`${className || ''} w-nav-menu${isMenuOpen ? ' w--open' : ''}`}
       role="navigation"
       data-up-node-id={nodeId}
       {...(isMenuOpen ? { 'data-nav-menu-open': '' } : {})}
@@ -205,36 +226,89 @@ export function NavbarLink({ text, href = '#', isActive, className, children, ..
 export interface NavbarButtonProps extends UpAnimationProps {
   className?: string;
   children?: React.ReactNode;
+  /**
+   * Hamburger icon style.
+   * - `'lines'` (default): class-only 3-line structure that animates into an X
+   *   when menu opens. Project CSS owns dimensions, color, and preview states.
+   * - `'svg'`: legacy inline SVG hamburger (no close animation)
+   * - `'custom'`: render whatever children are passed
+   * For Webflow export, provide page-specific iconClassName/iconLine*ClassName
+   * props so each navbar can own its hamburger colors and sizing.
+   */
+  icon?: 'lines' | 'svg' | 'custom';
+  iconClassName?: string;
+  iconLineTopClassName?: string;
+  iconLineMiddleClassName?: string;
+  iconLineMiddleInnerClassName?: string;
+  iconLineBottomClassName?: string;
   [key: string]: any;
 }
 
-export function NavbarButton({ className, children, ...rest }: NavbarButtonProps) {
+export function NavbarButton({
+  className,
+  children,
+  icon,
+  iconClassName,
+  iconLineTopClassName,
+  iconLineMiddleClassName,
+  iconLineMiddleInnerClassName,
+  iconLineBottomClassName,
+  ...rest
+}: NavbarButtonProps) {
   const nodeId = useNodeID();
   const { isMenuOpen, toggleMenu, staticMode } = useNavbarContext();
   const animAttrs = extractAnimationAttrs(rest);
   const props = omitAnimationProps(rest);
 
+  const resolvedIcon: 'lines' | 'svg' | 'custom' =
+    icon ?? (children ? 'custom' : 'lines');
+  const openCls = isMenuOpen ? ' w--open' : '';
+
+  let content: React.ReactNode;
+  if (resolvedIcon === 'custom') {
+    content = children;
+  } else if (resolvedIcon === 'svg') {
+    content = (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <line x1="3" y1="18" x2="21" y2="18" />
+      </svg>
+    );
+  } else {
+    // Project CSS owns all dimensions, colors, spacing, and preview states.
+    const wrapperClass = iconClassName || 'menu-icon_component';
+    const topClass = iconLineTopClassName || 'menu-icon_line-top';
+    const middleClass = iconLineMiddleClassName || 'menu-icon_line-middle';
+    const middleInnerClass = iconLineMiddleInnerClassName || 'menu-icon_line-middle-inner';
+    const bottomClass = iconLineBottomClassName || 'menu-icon_line-bottom';
+
+    content = (
+      <div className={`${wrapperClass}${openCls}`} aria-hidden="true">
+        <div className={`${topClass}${openCls}`} />
+        <div className={`${middleClass}${openCls}`}>
+          <div className={`${middleInnerClass}${openCls}`} />
+        </div>
+        <div className={`${bottomClass}${openCls}`} />
+      </div>
+    );
+  }
+
   return (
     <div
       {...props}
       {...animAttrs}
-      className={`${className || ''} w-nav-button ${isMenuOpen ? 'w--open' : ''}`}
+      className={`${className || ''} w-nav-button${openCls}`}
       onClick={staticMode ? undefined : toggleMenu}
       role="button"
       tabIndex={staticMode ? -1 : 0}
       aria-expanded={isMenuOpen}
       aria-label="menu"
       aria-haspopup="menu"
-      style={{ cursor: staticMode ? 'default' : 'pointer' }}
       data-up-node-id={nodeId}
+      data-up-icon={resolvedIcon}
     >
-      {children || (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="3" y1="12" x2="21" y2="12" />
-          <line x1="3" y1="6" x2="21" y2="6" />
-          <line x1="3" y1="18" x2="21" y2="18" />
-        </svg>
-      )}
+      {content}
     </div>
   );
 }

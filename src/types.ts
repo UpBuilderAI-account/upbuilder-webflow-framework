@@ -354,6 +354,9 @@ export interface NavbarSettings {
   dropdownDelay?: number;
   docHeight?: boolean;
   noScroll?: boolean;
+  menuAnimationPreset?: 'none' | 'fade' | 'slide' | 'slide-fade' | 'expand' | 'custom';
+  menuAnimationDuration?: number;
+  menuAnimationEasing?: string;
 }
 
 export interface DropdownSettings {
@@ -365,6 +368,9 @@ export interface DropdownSettings {
   animateOpen?: AnimationEffect;
   /** Animation effect when dropdown closes */
   animateClose?: AnimationEffect;
+  dropdownAnimationPreset?: 'none' | 'fade' | 'slide' | 'slide-fade' | 'expand' | 'custom';
+  dropdownAnimationDuration?: number;
+  dropdownAnimationEasing?: string;
 }
 
 export interface TabsSettings {
